@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI + PM</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,'SF Pro Display','Helvetica Neue','PingFang SC',sans-serif;
+  background:#000;color:#fff;overflow:hidden;
+  -webkit-font-smoothing:antialiased;
+  cursor:none;
+}
+
+/* ── Slide Engine ── */
+.slide{
+  width:100vw;height:100vh;position:absolute;top:0;left:0;
+  display:flex;flex-direction:column;justify-content:center;align-items:center;
+  padding:12vh 14vw;
+  opacity:0;pointer-events:none;
+  transition:opacity 0.7s ease;
+  background:radial-gradient(ellipse at 50% 42%,rgba(18,18,18,0.45) 0%,#000 65%);
+}
+.slide.active{opacity:1;pointer-events:auto}
+
+/* ── Sequential Fade-in ── */
+.slide .a{
+  opacity:0;transform:translateY(14px);
+  transition:opacity 0.55s ease,transform 0.55s ease;
+}
+.slide.active .a{opacity:1;transform:translateY(0)}
+.slide.active .a1{transition-delay:.15s}
+.slide.active .a2{transition-delay:.45s}
+.slide.active .a3{transition-delay:.75s}
+.slide.active .a4{transition-delay:1.05s}
+.slide.active .a5{transition-delay:1.35s}
+.slide.active .a6{transition-delay:1.65s}
+.slide.active .a7{transition-delay:1.95s}
+.slide.active .a8{transition-delay:2.25s}
+
+/* ── Typography ── */
+.t-mega{font-size:clamp(60px,8vw,130px);font-weight:700;letter-spacing:-.04em;line-height:1;text-align:center}
+.t-hero{font-size:clamp(44px,5.5vw,92px);font-weight:700;letter-spacing:-.03em;line-height:1.08;text-align:center}
+.t-title{font-size:clamp(34px,3.8vw,64px);font-weight:600;letter-spacing:-.02em;line-height:1.15;text-align:center}
+.t-sub{font-size:clamp(20px,2.2vw,36px);font-weight:300;color:rgba(255,255,255,.4);line-height:1.45;text-align:center}
+.t-body{font-size:clamp(17px,1.5vw,26px);font-weight:400;color:rgba(255,255,255,.45);line-height:1.55;text-align:center;max-width:680px}
+.t-label{font-size:clamp(14px,1.2vw,20px);font-weight:600;letter-spacing:.25em;text-transform:uppercase;text-align:center;margin-bottom:20px}
+.t-stat{font-size:clamp(72px,10vw,160px);font-weight:800;letter-spacing:-.04em;line-height:1}
+.t-quote{font-size:clamp(28px,3vw,48px);font-weight:300;line-height:1.4;text-align:center;font-style:italic;color:rgba(255,255,255,.6);max-width:750px}
+
+/* Colors */
+.c-blue{color:#2997ff}.c-purple{color:#bf5af2}.c-teal{color:#5ac8fa}
+.c-green{color:#30d158}.c-orange{color:#ff9f0a}.c-red{color:#ff453a}
+.c-w5{color:rgba(255,255,255,.5)}.c-w2{color:rgba(255,255,255,.2)}
+.strike{text-decoration:line-through;color:rgba(255,255,255,.15)}
+.dim{color:rgba(255,255,255,.2)}
+
+/* ── Flow Diagram ── */
+.flow{display:flex;align-items:center;justify-content:center;gap:0;flex-wrap:nowrap;margin:36px 0}
+.flow-node{
+  padding:14px 24px;border-radius:14px;
+  font-size:clamp(14px,1.3vw,20px);font-weight:600;
+  text-align:center;white-space:nowrap;
+}
+.flow-node small{display:block;font-size:.7em;font-weight:400;opacity:.45;margin-top:2px}
+.n-dark{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.07)}
+.n-accent{background:#ff9f0a;color:#000}
+.n-purple{border:1.5px solid rgba(191,90,242,.35);color:#bf5af2;background:rgba(191,90,242,.05)}
+.n-solid-purple{background:#bf5af2;color:#fff}
+.n-teal{border:1.5px solid rgba(90,200,250,.35);color:#5ac8fa;background:rgba(90,200,250,.05)}
+.flow-arrow{font-size:clamp(16px,1.4vw,24px);color:rgba(255,255,255,.1);padding:0 8px;flex-shrink:0}
+
+/* Vertical flow */
+.flow-v{display:flex;flex-direction:column;align-items:center;gap:0}
+.flow-v .flow-arrow{padding:5px 0;transform:rotate(90deg)}
+
+/* ── Islands ── */
+.islands{display:flex;gap:clamp(10px,1.4vw,22px);justify-content:center;align-items:center;margin:36px 0}
+.island{
+  width:clamp(76px,8vw,120px);height:clamp(76px,8vw,120px);
+  border-radius:22px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+.island-ic{font-size:clamp(22px,2.8vw,34px);margin-bottom:5px}
+.island-name{font-size:clamp(11px,1vw,15px);font-weight:600}
+.island-x{font-size:16px;color:rgba(255,68,58,.35);font-weight:800;padding:0 2px}
+
+/* ── Compare ── */
+.cmp{display:flex;gap:clamp(36px,5vw,90px);justify-content:center;margin:36px 0;width:100%}
+.cmp-col{max-width:400px;flex:1}
+.cmp-col h3{font-size:clamp(26px,2.4vw,38px);font-weight:700;margin-bottom:24px}
+.cmp-item{
+  font-size:clamp(16px,1.4vw,22px);padding:11px 0;
+  border-bottom:1px solid rgba(255,255,255,.03);
+  display:flex;gap:12px;align-items:flex-start;line-height:1.4;
+  color:rgba(255,255,255,.5);
+}
+.cmp-item:last-child{border-bottom:none}
+.cmp-mark{flex-shrink:0}
+
+/* ── Steps ── */
+.steps{display:flex;gap:clamp(4px,.6vw,10px);align-items:stretch;justify-content:center;margin:32px 0;width:100%}
+.step{
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04);
+  border-radius:16px;padding:clamp(18px,1.8vw,28px) clamp(12px,1.2vw,20px);
+  text-align:center;flex:1;max-width:180px;
+}
+.step-n{
+  width:34px;height:34px;border-radius:50%;
+  font-size:15px;font-weight:800;
+  display:flex;align-items:center;justify-content:center;
+  margin:0 auto 10px;
+}
+.step h4{font-size:clamp(13px,1.2vw,18px);font-weight:700;margin-bottom:3px}
+.step p{font-size:clamp(10px,.9vw,14px);color:rgba(255,255,255,.25);line-height:1.3}
+.step-tag{display:inline-block;margin-top:7px;font-size:10px;font-weight:700;padding:2px 9px;border-radius:10px;background:rgba(191,90,242,.1);color:#bf5af2}
+.step-arr{display:flex;align-items:center;font-size:18px;color:rgba(255,255,255,.08)}
+
+/* ── Hub Diagram ── */
+.hub{position:relative;width:min(560px,68vw);height:min(360px,42vh);margin:28px 0}
+.hub-center{
+  position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+  width:clamp(90px,13vw,150px);height:clamp(90px,13vw,150px);
+  border-radius:50%;
+  background:linear-gradient(135deg,#bf5af2,#5ac8fa);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:clamp(13px,1.1vw,17px);font-weight:700;z-index:2;
+  box-shadow:0 0 80px rgba(90,200,250,.1);
+}
+.hub-center span{font-size:clamp(26px,2.8vw,38px);margin-bottom:2px}
+.hub-node{
+  position:absolute;width:clamp(66px,7.5vw,96px);height:clamp(66px,7.5vw,96px);
+  border-radius:50%;background:rgba(255,255,255,.03);
+  border:1px solid rgba(255,255,255,.07);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  font-size:clamp(10px,.85vw,13px);font-weight:600;
+  color:rgba(255,255,255,.6);z-index:2;
+}
+.hub-node .hi{font-size:clamp(18px,1.8vw,26px);margin-bottom:2px}
+.hub svg{position:absolute;inset:0;z-index:1;width:100%;height:100%}
+
+/* ── Tools ── */
+.tools{display:flex;flex-direction:column;gap:0;width:100%;max-width:660px;margin:28px 0}
+.tool-item{
+  display:flex;align-items:center;gap:clamp(14px,1.8vw,24px);
+  padding:clamp(14px,1.5vw,22px) 0;
+  border-bottom:1px solid rgba(255,255,255,.035);
+}
+.tool-item:last-child{border-bottom:none}
+.tool-ic{font-size:clamp(26px,2.8vw,38px);flex-shrink:0}
+.tool-name{font-size:clamp(18px,1.8vw,28px);font-weight:700}
+.tool-desc{font-size:clamp(13px,1.1vw,17px);color:rgba(255,255,255,.3);margin-top:2px}
+.tool-tag{
+  margin-left:auto;font-size:clamp(10px,.9vw,13px);font-weight:700;
+  padding:4px 13px;border-radius:18px;flex-shrink:0;white-space:nowrap;
+}
+
+/* ── Phase Cards ── */
+.phases{display:flex;gap:clamp(10px,1.4vw,22px);justify-content:center;width:100%;margin:28px 0}
+.phase{
+  flex:1;max-width:300px;padding:clamp(20px,2.2vw,36px);
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04);
+  border-radius:18px;border-top:3px solid;text-align:center;
+}
+.phase h3{font-size:clamp(18px,1.8vw,28px);font-weight:700;margin-bottom:2px}
+.phase .ph-time{font-size:clamp(12px,1vw,16px);color:rgba(255,255,255,.25);margin-bottom:18px}
+.phase li{
+  list-style:none;font-size:clamp(12px,1.1vw,16px);color:rgba(255,255,255,.45);
+  padding:7px 0;border-bottom:1px solid rgba(255,255,255,.025);
+}
+.phase li:last-child{border-bottom:none}
+.phase .ph-save{font-size:clamp(20px,2.2vw,34px);font-weight:800;margin-top:18px}
+
+/* ── Table ── */
+.k-table{border-collapse:collapse;width:100%;max-width:820px}
+.k-table th{
+  text-align:left;font-size:clamp(11px,.9vw,14px);font-weight:600;
+  color:rgba(255,255,255,.2);padding:12px 20px;
+  border-bottom:1px solid rgba(255,255,255,.06);
+  letter-spacing:.1em;text-transform:uppercase;
+}
+.k-table td{
+  font-size:clamp(14px,1.3vw,20px);padding:16px 20px;
+  border-bottom:1px solid rgba(255,255,255,.025);
+}
+
+/* ── Diff Card ── */
+.diff-card{
+  background:rgba(255,255,255,.025);border:1px solid rgba(255,255,255,.04);
+  border-radius:18px;padding:clamp(20px,2.5vw,40px);
+  max-width:460px;width:100%;
+}
+.diff-row{
+  display:flex;gap:14px;padding:12px 0;
+  border-bottom:1px solid rgba(255,255,255,.025);
+  font-size:clamp(14px,1.3vw,20px);
+}
+.diff-row:last-child{border-bottom:none}
+.diff-lbl{color:rgba(255,255,255,.2);width:80px;flex-shrink:0;font-size:.85em}
+
+/* ── Pain Item ── */
+.pain-item{
+  display:flex;align-items:center;gap:18px;padding:18px 0;
+  border-bottom:1px solid rgba(255,255,255,.04);
+}
+.pain-item:last-child{border-bottom:none}
+.pain-ic{font-size:clamp(28px,3vw,42px);flex-shrink:0}
+.pain-title{font-size:clamp(18px,1.8vw,26px);font-weight:600}
+.pain-desc{font-size:clamp(13px,1.1vw,17px);color:rgba(255,255,255,.25);margin-top:2px}
+
+/* ── SOP Card ── */
+.sop-steps{display:flex;flex-direction:column;gap:0;width:100%;max-width:620px}
+.sop-step{
+  display:flex;align-items:flex-start;gap:16px;padding:14px 0;
+  border-bottom:1px solid rgba(255,255,255,.025);
+}
+.sop-step:last-child{border-bottom:none}
+.sop-n{
+  width:28px;height:28px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;font-weight:800;
+}
+.sop-txt{font-size:clamp(15px,1.3vw,21px);line-height:1.4}
+.sop-txt small{display:block;color:rgba(255,255,255,.25);font-size:.75em;margin-top:2px}
+
+/* ── Progress Bar ── */
+#prog-wrap{
+  position:fixed;bottom:0;left:0;width:100%;height:3px;
+  background:rgba(255,255,255,.04);z-index:100;
+}
+#prog{height:100%;width:0;background:rgba(255,255,255,.15);transition:width .5s ease}
+
+/* ── Slide Counter ── */
+#counter{
+  position:fixed;bottom:14px;right:20px;
+  font-size:13px;color:rgba(255,255,255,.12);
+  font-variant-numeric:tabular-nums;z-index:100;
+}
+
+/* ── Responsive ── */
+@media(max-width:768px){
+  .slide{padding:8vh 7vw}
+  .cmp{flex-direction:column;gap:28px}
+  .phases{flex-direction:column;align-items:center}
+  .steps{flex-wrap:wrap}
+  .flow{flex-wrap:wrap;gap:4px}
+}
+</style>
+</head>
+<body>
+
+<!-- Progress bar -->
+<div id="prog-wrap"><div id="prog"></div></div>
+<div id="counter"></div>
+
+<!-- ═══════════════════════════════════════════
+     OPENING — THE HOOK
+     ═══════════════════════════════════════════ -->
+
+<!-- 1 -->
+<div class="slide active">
+  <div class="a a1 t-label c-blue" style="letter-spacing:.35em">2026</div>
+  <h1 class="a a2 t-mega">AI + PM</h1>
+</div>
+
+<!-- 2 -->
+<div class="slide">
+  <p class="a a1 t-quote">
+    "每一次伟大的产品，<br>都始于对低效的不满。"
+  </p>
+</div>
+
+<!-- 3 -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="max-width:850px">
+    产品经理每周<br>花多少时间在<br><span class="c-orange">信息搬运</span>上？
+  </h1>
+</div>
+
+<!-- 4 -->
+<div class="slide">
+  <div class="a a1 t-stat c-orange">10h+</div>
+  <p class="a a2 t-sub" style="margin-top:20px">每周，用在传话、汇总、对齐上</p>
+</div>
+
+<!-- 5 -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="max-width:800px">
+    如果把这些时间<br>还给<span class="c-blue">产品思考</span>呢？
+  </h1>
+</div>
+
+<!-- 6: Agenda -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:48px">今天聊三件事</p>
+  <h2 class="a a2 t-title" style="margin-bottom:16px"><span class="c-orange">问题</span></h2>
+  <h2 class="a a3 t-title" style="margin-bottom:16px"><span class="c-purple">方案</span></h2>
+  <h2 class="a a4 t-title"><span class="c-green">落地</span></h2>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ACT 1 — THE PROBLEM
+     ═══════════════════════════════════════════ -->
+
+<!-- 7: Chapter -->
+<div class="slide">
+  <div class="a a1 t-label c-orange">Act 1</div>
+  <h1 class="a a2 t-mega">问题</h1>
+</div>
+
+<!-- 8: The Chain -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:10px">需求传递链</h2>
+  <p class="a a2 t-body" style="margin-bottom:32px">每经过一个箭头，信息衰减一次</p>
+  <div class="a a3 flow">
+    <div class="flow-node n-dark">+2<small>老板的老板</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-dark">+1<small>直属上级</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-accent">PM<small>你</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-dark">研发</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-dark">设计</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-dark">测试</div>
+  </div>
+</div>
+
+<!-- 9: The Problem with the Chain -->
+<div class="slide">
+  <h2 class="a a1 t-title c-orange" style="margin-bottom:36px">口头传达的代价</h2>
+  <p class="a a2 t-body" style="margin-bottom:12px">一句话需求，没有上下文</p>
+  <p class="a a3 t-body" style="margin-bottom:12px">频繁变更，没有 Diff</p>
+  <p class="a a4 t-body" style="margin-bottom:12px">PM 凭记忆理解，凭记忆转述</p>
+  <p class="a a5 t-body"><strong class="c-orange">你是唯一枢纽，也是唯一故障点</strong></p>
+</div>
+
+<!-- 10: Five Tool Islands -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:10px">五个信息孤岛</h2>
+  <p class="a a2 t-body" style="margin-bottom:20px">工具之间互不相通，靠你人肉串联</p>
+  <div class="a a3 islands">
+    <div class="island"><div class="island-ic">📝</div><div class="island-name">语雀</div></div>
+    <div class="island-x">✕</div>
+    <div class="island"><div class="island-ic">💬</div><div class="island-name">钉钉</div></div>
+    <div class="island-x">✕</div>
+    <div class="island"><div class="island-ic">🎨</div><div class="island-name">Figma</div></div>
+    <div class="island-x">✕</div>
+    <div class="island"><div class="island-ic">🐛</div><div class="island-name">Aone</div></div>
+    <div class="island-x">✕</div>
+    <div class="island"><div class="island-ic">📊</div><div class="island-name">WA</div></div>
+  </div>
+</div>
+
+<!-- 11: The Cost -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:36px">每次汇报进度</h2>
+  <p class="a a2 t-body" style="font-size:clamp(20px,1.8vw,30px)">打开 5 个工具 → 手动拼凑 → 写成报告</p>
+  <div class="a a3 t-stat c-orange" style="margin-top:36px">1–2h</div>
+  <p class="a a4 t-sub">每一次</p>
+</div>
+
+<!-- 12: Three Core Pains -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:40px">三个核心痛点</h2>
+  <div style="max-width:640px;width:100%">
+    <div class="a a2 pain-item">
+      <div class="pain-ic">💬</div>
+      <div><div class="pain-title">需求在传递中丢失变形</div><div class="pain-desc">口头传达无记录，多次变更无 Diff</div></div>
+    </div>
+    <div class="a a3 pain-item">
+      <div class="pain-ic">📌</div>
+      <div><div class="pain-title">一句话需求缺少上下文</div><div class="pain-desc">上级默认你理解全部背景</div></div>
+    </div>
+    <div class="a a4 pain-item">
+      <div class="pain-ic">⏱️</div>
+      <div><div class="pain-title">进度汇报成本极高</div><div class="pain-desc">5 个工具手动汇总，每次 1–2 小时</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 13: Transition -->
+<div class="slide">
+  <h1 class="a a1 t-hero c-w5">这些问题的本质是什么？</h1>
+</div>
+
+<!-- 14 -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="max-width:750px">
+    PM 在做<span class="c-orange">信息搬运</span><br>而不是<span class="c-blue">产品决策</span>
+  </h1>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ACT 2 — THE SOLUTION
+     ═══════════════════════════════════════════ -->
+
+<!-- 15: Chapter -->
+<div class="slide">
+  <div class="a a1 t-label c-purple">Act 2</div>
+  <h1 class="a a2 t-mega">方案</h1>
+</div>
+
+<!-- 16: Core Idea -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="max-width:800px">
+    让 AI 处理信息<br>让 PM 专注决策
+  </h1>
+</div>
+
+<!-- 17: Two Parts -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:48px">两个维度</p>
+  <h2 class="a a2 t-title" style="margin-bottom:20px"><span class="c-purple">Part 1</span>　AI 赋能信息流</h2>
+  <h2 class="a a3 t-title"><span class="c-teal">Part 2</span>　AI 赋能工具协同</h2>
+</div>
+
+<!-- ── PART 1: Information Flow ── -->
+
+<!-- 18 -->
+<div class="slide">
+  <div class="a a1 t-label c-purple">Part 1</div>
+  <h1 class="a a2 t-hero"><span class="c-purple">AI 赋能信息流</span></h1>
+  <p class="a a3 t-sub" style="margin-top:14px">让每一次传递准确且完整</p>
+</div>
+
+<!-- 19: AI in every node -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:32px">AI 参与每个传递节点</h2>
+  <div class="a a2 flow">
+    <div class="flow-node n-dark">需求来源</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-purple">🤖 记录<small>结构化</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-purple">🤖 追问<small>补全</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-solid-purple">PM 审核</div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-purple">🤖 生成<small>PRD</small></div>
+    <div class="flow-arrow">→</div>
+    <div class="flow-node n-dark">协作方</div>
+  </div>
+</div>
+
+<!-- 20: Role Shift -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:36px">PM 的角色转变</p>
+  <h1 class="a a2 t-hero">
+    从 <span class="c-orange">信息翻译者</span><br>到 <span class="c-purple">信息审核者</span>
+  </h1>
+</div>
+
+<!-- 21: Before vs After -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:32px">信息流对比</h2>
+  <div class="a a2 cmp">
+    <div class="cmp-col">
+      <h3 class="c-orange">Before</h3>
+      <div class="cmp-item"><span class="cmp-mark c-orange">✕</span>口头传达，无结构化记录</div>
+      <div class="cmp-item"><span class="cmp-mark c-orange">✕</span>PM 凭记忆理解需求</div>
+      <div class="cmp-item"><span class="cmp-mark c-orange">✕</span>变更通知零散，频繁遗漏</div>
+      <div class="cmp-item"><span class="cmp-mark c-orange">✕</span>协作方信息二次走样</div>
+    </div>
+    <div class="cmp-col">
+      <h3 class="c-purple">After</h3>
+      <div class="cmp-item"><span class="cmp-mark c-purple">✓</span>AI 自动结构化每次传达</div>
+      <div class="cmp-item"><span class="cmp-mark c-purple">✓</span>AI 追问补全，信息完整</div>
+      <div class="cmp-item"><span class="cmp-mark c-purple">✓</span>变更自动 Diff，全员同步</div>
+      <div class="cmp-item"><span class="cmp-mark c-purple">✓</span>按角色定制化摘要</div>
+    </div>
+  </div>
+</div>
+
+<!-- 22: One-sentence → PRD title -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:28px">核心场景</p>
+  <h1 class="a a2 t-hero" style="max-width:800px">
+    "做个优惠券功能"
+  </h1>
+  <p class="a a3 t-sub" style="margin-top:28px">↓</p>
+  <h1 class="a a4 t-title c-purple" style="margin-top:12px">完整 PRD</h1>
+</div>
+
+<!-- 23: 5-step flow -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:8px">五步完成，三步由 AI 执行</h2>
+  <div class="a a2 steps">
+    <div class="step">
+      <div class="step-n" style="background:#bf5af2;color:#fff">1</div>
+      <h4>需求解析</h4><p>提取关键实体</p>
+      <span class="step-tag">AI</span>
+    </div>
+    <div class="step-arr">→</div>
+    <div class="step">
+      <div class="step-n" style="background:#bf5af2;color:#fff">2</div>
+      <h4>追问补全</h4><p>6 维度清单</p>
+      <span class="step-tag">AI</span>
+    </div>
+    <div class="step-arr">→</div>
+    <div class="step" style="border-color:rgba(255,255,255,.1)">
+      <div class="step-n" style="background:#fff;color:#000">3</div>
+      <h4>PM 确认</h4><p>业务判断</p>
+    </div>
+    <div class="step-arr">→</div>
+    <div class="step">
+      <div class="step-n" style="background:#bf5af2;color:#fff">4</div>
+      <h4>生成 PRD</h4><p>完整框架</p>
+      <span class="step-tag">AI</span>
+    </div>
+    <div class="step-arr">→</div>
+    <div class="step" style="border-color:rgba(48,209,88,.15)">
+      <div class="step-n" style="background:#30d158;color:#000">5</div>
+      <h4>PM 精修</h4><p>决策定稿</p>
+    </div>
+  </div>
+</div>
+
+<!-- 24: AI 追问模板 -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:32px">AI 追问 · 六个维度</h2>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,16px);max-width:680px;width:100%">
+    <div class="a a2" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">🎯</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">业务目标</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">为什么做？指标？</div>
+    </div>
+    <div class="a a3" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">👤</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">目标用户</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">谁在用？</div>
+    </div>
+    <div class="a a4" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">📦</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">功能范围</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">做什么？不做什么？</div>
+    </div>
+    <div class="a a5" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">⏰</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">时间约束</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">什么时候上？</div>
+    </div>
+    <div class="a a6" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">🚫</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">边界约束</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">预算？合规？</div>
+    </div>
+    <div class="a a7" style="background:rgba(191,90,242,.06);border:1px solid rgba(191,90,242,.12);border-radius:14px;padding:clamp(14px,1.5vw,22px);text-align:center">
+      <div style="font-size:22px;margin-bottom:6px">✅</div>
+      <div style="font-size:clamp(13px,1.2vw,17px);font-weight:600">验收标准</div>
+      <div style="font-size:clamp(10px,.9vw,13px);color:rgba(255,255,255,.25);margin-top:3px">怎样算做完？</div>
+    </div>
+  </div>
+</div>
+
+<!-- 25: PRD time saved -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:44px">PRD 撰写时间</h2>
+  <div class="a a2" style="display:flex;gap:clamp(28px,5vw,80px);align-items:baseline;justify-content:center">
+    <div style="text-align:center">
+      <div class="t-stat strike">4–8h</div>
+      <div class="t-body" style="margin-top:8px">从零开始</div>
+    </div>
+    <div style="font-size:clamp(28px,3vw,48px);color:rgba(255,255,255,.08)">→</div>
+    <div style="text-align:center">
+      <div class="t-stat c-purple">1–2h</div>
+      <div class="t-body" style="margin-top:8px">AI 初稿 + PM 精修</div>
+    </div>
+  </div>
+</div>
+
+<!-- 26: Change Tracking Title -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:20px">另一个关键能力</p>
+  <h1 class="a a2 t-hero">需求变更<br><span class="c-purple">自动追踪</span></h1>
+</div>
+
+<!-- 27: Change Tracking Flow -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:28px">变更处理流程</h2>
+  <div style="display:flex;gap:clamp(20px,3.5vw,50px);align-items:flex-start;justify-content:center">
+    <div class="a a2 flow-v">
+      <div class="flow-node n-dark" style="width:220px">变更来源<small>钉钉 / 会议 / 语雀</small></div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node n-purple" style="width:220px">🤖 识别 & Diff</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node n-purple" style="width:220px">🤖 影响分析</div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-node n-dark" style="width:220px">记录卡 + 全员通知</div>
+    </div>
+    <div class="a a3 diff-card">
+      <div style="font-size:clamp(16px,1.4vw,22px);font-weight:700;margin-bottom:14px">变更 Diff 示例</div>
+      <div class="diff-row"><span class="diff-lbl">变更人</span>+1 张总</div>
+      <div class="diff-row"><span class="diff-lbl">内容</span><div><span class="c-red" style="text-decoration:line-through">仅满减券</span><br><span class="c-green">→ 增加折扣券</span></div></div>
+      <div class="diff-row"><span class="diff-lbl">影响</span>后端+2 · 前端+1 · 测试+8</div>
+      <div class="diff-row"><span class="diff-lbl">排期</span><span class="c-orange" style="font-weight:700">延期 2 天</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── PART 2: Tool Collaboration ── -->
+
+<!-- 28 -->
+<div class="slide">
+  <div class="a a1 t-label c-teal">Part 2</div>
+  <h1 class="a a2 t-hero"><span class="c-teal">AI 赋能工具协同</span></h1>
+  <p class="a a3 t-sub" style="margin-top:14px">一个中枢，终结五个孤岛</p>
+</div>
+
+<!-- 29: AI Hub -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:16px">AI 中枢架构</h2>
+  <div class="a a2 hub">
+    <svg viewBox="0 0 560 360">
+      <line x1="280" y1="180" x2="75" y2="45" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>
+      <line x1="280" y1="180" x2="280" y2="22" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>
+      <line x1="280" y1="180" x2="485" y2="45" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>
+      <line x1="280" y1="180" x2="110" y2="315" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>
+      <line x1="280" y1="180" x2="450" y2="315" stroke="rgba(255,255,255,.05)" stroke-width="1.5"/>
+    </svg>
+    <div class="hub-center"><span>🤖</span>AI 中枢</div>
+    <div class="hub-node" style="top:4%;left:3%"><div class="hi">📝</div>语雀</div>
+    <div class="hub-node" style="top:0;left:42%"><div class="hi">💬</div>钉钉</div>
+    <div class="hub-node" style="top:4%;right:3%"><div class="hi">🎨</div>Figma</div>
+    <div class="hub-node" style="bottom:2%;left:12%"><div class="hi">🐛</div>Aone</div>
+    <div class="hub-node" style="bottom:2%;right:12%"><div class="hi">📊</div>WA</div>
+  </div>
+  <p class="a a3 t-body">向 AI 提问，即刻获取跨工具的全局信息</p>
+</div>
+
+<!-- 30: Hub capabilities -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:36px">中枢能力</h2>
+  <div style="max-width:600px;width:100%">
+    <div class="a a2 pain-item">
+      <div class="pain-ic">📚</div>
+      <div><div class="pain-title">项目知识库</div><div class="pain-desc">统一索引所有文档、决策、变更</div></div>
+    </div>
+    <div class="a a3 pain-item">
+      <div class="pain-ic">🔄</div>
+      <div><div class="pain-title">信息同步引擎</div><div class="pain-desc">监控各工具变更 → 同步到知识库</div></div>
+    </div>
+    <div class="a a4 pain-item">
+      <div class="pain-ic">📊</div>
+      <div><div class="pain-title">进度聚合器</div><div class="pain-desc">自动拉取各工具状态，一键生成报告</div></div>
+    </div>
+    <div class="a a5 pain-item">
+      <div class="pain-ic">🤖</div>
+      <div><div class="pain-title">智能助手</div><div class="pain-desc">自然语言对话，回答问题，追踪变更</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- 31: Progress Report -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:44px">进度报告生成</h2>
+  <div class="a a2" style="display:flex;gap:clamp(28px,5vw,80px);align-items:baseline;justify-content:center">
+    <div style="text-align:center">
+      <div class="t-stat strike">1–2h</div>
+      <div class="t-body" style="margin-top:8px">手动汇总 5 个工具</div>
+    </div>
+    <div style="font-size:clamp(28px,3vw,48px);color:rgba(255,255,255,.08)">→</div>
+    <div style="text-align:center">
+      <div class="t-stat c-teal">3min</div>
+      <div class="t-body" style="margin-top:8px">AI 聚合生成</div>
+    </div>
+  </div>
+</div>
+
+<!-- 32: Progress Report Example -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:24px">自动生成的报告</h2>
+  <div class="a a2 diff-card" style="max-width:520px">
+    <div style="font-size:clamp(15px,1.3vw,20px);font-weight:700;margin-bottom:16px;color:#5ac8fa">优惠券功能 · 项目进度</div>
+    <div class="diff-row"><span class="diff-lbl">整体</span><span style="color:#5ac8fa">■■■■■■□□□□ 65%</span></div>
+    <div class="diff-row"><span class="diff-lbl">PRD</span><span class="c-green">✅ 已定稿 v2.1</span></div>
+    <div class="diff-row"><span class="diff-lbl">设计</span><span class="c-green">✅ 视觉交付完成</span></div>
+    <div class="diff-row"><span class="diff-lbl">开发</span>后端 80% · 前端 50%</div>
+    <div class="diff-row"><span class="diff-lbl">风险</span><span class="c-orange">⚠️ 折扣券变更，预计延期 2 天</span></div>
+    <div class="diff-row"><span class="diff-lbl">决策</span>叠加规则推迟到 V2</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     ACT 3 — HOW TO DO IT
+     ═══════════════════════════════════════════ -->
+
+<!-- 33: Chapter -->
+<div class="slide">
+  <div class="a a1 t-label c-green">Act 3</div>
+  <h1 class="a a2 t-mega">落地</h1>
+</div>
+
+<!-- 34: Tool Selection Title -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:20px">首先</p>
+  <h1 class="a a2 t-hero">工具选型</h1>
+  <p class="a a3 t-sub" style="margin-top:16px">四个工具，各司其职</p>
+</div>
+
+<!-- 35: Tool Stack -->
+<div class="slide">
+  <div class="a a1 tools">
+    <div class="tool-item">
+      <div class="tool-ic">🧠</div>
+      <div><div class="tool-name">Claude</div><div class="tool-desc">需求分析 · PRD 撰写 · 变更 Diff · 进度报告</div></div>
+      <span class="tool-tag" style="background:rgba(191,90,242,.1);color:#bf5af2">主力 AI</span>
+    </div>
+    <div class="tool-item">
+      <div class="tool-ic">🤖</div>
+      <div><div class="tool-name">钉钉 AI 助理</div><div class="tool-desc">群消息摘要 · 会议纪要 · 待办提取</div></div>
+      <span class="tool-tag" style="background:rgba(90,200,250,.1);color:#5ac8fa">已内置</span>
+    </div>
+    <div class="tool-item">
+      <div class="tool-ic">⚡</div>
+      <div><div class="tool-name">Coze 扣子</div><div class="tool-desc">多步骤 AI 工作流编排 · 自动化 Bot</div></div>
+      <span class="tool-tag" style="background:rgba(255,55,95,.1);color:#ff375f">自动化</span>
+    </div>
+    <div class="tool-item">
+      <div class="tool-ic">🔗</div>
+      <div><div class="tool-name">钉钉连接器</div><div class="tool-desc">Aone → 钉钉 → 语雀，状态自动同步</div></div>
+      <span class="tool-tag" style="background:rgba(255,159,10,.1);color:#ff9f0a">打通</span>
+    </div>
+  </div>
+</div>
+
+<!-- 36: SOP Title -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:20px">然后</p>
+  <h1 class="a a2 t-hero">标准化 SOP</h1>
+  <p class="a a3 t-sub" style="margin-top:16px">四个核心流程，AI 嵌入每一步</p>
+</div>
+
+<!-- 37: SOP - Requirement Intake -->
+<div class="slide">
+  <h2 class="a a1 t-title c-purple" style="margin-bottom:28px">需求接收 SOP</h2>
+  <div class="a a2 sop-steps">
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(90,200,250,.15);color:#5ac8fa">1</div>
+      <div class="sop-txt">原始记录<small>钉钉 AI 自动记录上下文</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">2</div>
+      <div class="sop-txt">AI 解析 + 追问<small>Claude 输出需求分析 + 6 维度清单</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(255,255,255,.08);color:#fff">3</div>
+      <div class="sop-txt">找 +1 确认<small>带着追问清单，逐项对齐</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">4</div>
+      <div class="sop-txt">生成需求卡<small>AI 输出标准化需求卡，PM 审核</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(48,209,88,.15);color:#30d158">5</div>
+      <div class="sop-txt">归档 + 通知<small>发钉钉群 @相关人，语雀建页</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- 38: SOP - PRD Writing -->
+<div class="slide">
+  <h2 class="a a1 t-title c-purple" style="margin-bottom:28px">PRD 撰写 SOP</h2>
+  <div class="a a2 sop-steps">
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">1</div>
+      <div class="sop-txt">输入需求卡<small>上传需求卡 + 背景资料到 Claude</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">2</div>
+      <div class="sop-txt">AI 生成初稿<small>完整 PRD：用户故事 / 功能清单 / 流程图 / 验收标准</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(255,255,255,.08);color:#fff">3</div>
+      <div class="sop-txt">PM 精修<small>加入业务判断、边界条件、产品决策</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(48,209,88,.15);color:#30d158">4</div>
+      <div class="sop-txt">发布语雀<small>标记版本 v1.0，钉钉 @通知</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">5</div>
+      <div class="sop-txt">生成角色摘要<small>研发看技术点，设计看交互点</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- 39: SOP - Change Handling -->
+<div class="slide">
+  <h2 class="a a1 t-title c-purple" style="margin-bottom:28px">需求变更 SOP</h2>
+  <div class="a a2 sop-steps">
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(255,255,255,.08);color:#fff">1</div>
+      <div class="sop-txt">变更记录<small>要求变更方在钉钉写明文字</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">2</div>
+      <div class="sop-txt">AI 生成 Diff<small>前后对比 + 受影响模块 + 影响评估</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(255,255,255,.08);color:#fff">3</div>
+      <div class="sop-txt">影响确认<small>拿 Diff 找研发确认排期影响</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(255,159,10,.15);color:#ff9f0a">4</div>
+      <div class="sop-txt">决策确认<small>反馈 +1：接受 / 推迟 / 替代方案</small></div>
+    </div>
+    <div class="sop-step">
+      <div class="sop-n" style="background:rgba(191,90,242,.15);color:#bf5af2">5</div>
+      <div class="sop-txt">更新 + 通知<small>AI 生成变更通知，全员同步</small></div>
+    </div>
+  </div>
+</div>
+
+<!-- 40: Roadmap Title -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:20px">最后</p>
+  <h1 class="a a2 t-hero">落地路线图</h1>
+</div>
+
+<!-- 41: Roadmap 3 phases -->
+<div class="slide">
+  <div class="a a1 phases">
+    <div class="phase" style="border-top-color:#bf5af2">
+      <h3>Phase 1</h3>
+      <div class="ph-time">1–2 周 · 零开发</div>
+      <ul style="padding:0">
+        <li>Claude 写 PRD</li>
+        <li>启用钉钉 AI</li>
+        <li>变更 Diff 半自动</li>
+        <li>进度报告 AI 辅助</li>
+      </ul>
+      <div class="ph-save c-purple">省 3–5h/周</div>
+    </div>
+    <div class="phase" style="border-top-color:#5ac8fa">
+      <h3>Phase 2</h3>
+      <div class="ph-time">1–2 月 · 少量配置</div>
+      <ul style="padding:0">
+        <li>Claude 知识库</li>
+        <li>Coze 需求 Bot</li>
+        <li>设计走查 AI 化</li>
+        <li>Webhook 增强</li>
+      </ul>
+      <div class="ph-save c-teal">省 5–8h/周</div>
+    </div>
+    <div class="phase" style="border-top-color:#30d158">
+      <h3>Phase 3</h3>
+      <div class="ph-time">3–6 月 · 需开发</div>
+      <ul style="padding:0">
+        <li>统一知识库</li>
+        <li>进度全自动</li>
+        <li>变更自动追踪</li>
+        <li>报表智能解读</li>
+      </ul>
+      <div class="ph-save c-green">省 8–12h/周</div>
+    </div>
+  </div>
+</div>
+
+<!-- 42: Investment ROI -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:28px">投入与回报</h2>
+  <table class="a a2 k-table">
+    <tr><th>阶段</th><th>投入</th><th>每周节省</th></tr>
+    <tr><td style="font-weight:700;color:#bf5af2">Phase 1</td><td style="color:rgba(255,255,255,.4)">Claude $20/月 + 1–2 天学习</td><td class="c-purple" style="font-weight:700">3–5 小时</td></tr>
+    <tr><td style="font-weight:700;color:#5ac8fa">Phase 2</td><td style="color:rgba(255,255,255,.4)">Coze 免费 + 3–5 天配置</td><td class="c-teal" style="font-weight:700">5–8 小时</td></tr>
+    <tr><td style="font-weight:700;color:#30d158">Phase 3</td><td style="color:rgba(255,255,255,.4)">1–2 人周开发</td><td class="c-green" style="font-weight:700">8–12 小时</td></tr>
+  </table>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     THE CLOSE
+     ═══════════════════════════════════════════ -->
+
+<!-- 43: Summary Table -->
+<div class="slide">
+  <h2 class="a a1 t-title" style="margin-bottom:28px">前后对比</h2>
+  <table class="a a2 k-table">
+    <tr><th>维度</th><th>Before</th><th>After</th></tr>
+    <tr><td style="font-weight:700">需求接收</td><td style="color:rgba(255,255,255,.2)">凭记忆，遗漏率高</td><td class="c-green">AI 结构化 + 追问</td></tr>
+    <tr><td style="font-weight:700">PRD 撰写</td><td style="color:rgba(255,255,255,.2)">从零写，4–8h</td><td class="c-green">AI 初稿，1–2h</td></tr>
+    <tr><td style="font-weight:700">需求变更</td><td style="color:rgba(255,255,255,.2)">群聊传达，常遗漏</td><td class="c-green">自动 Diff + 通知</td></tr>
+    <tr><td style="font-weight:700">进度汇报</td><td style="color:rgba(255,255,255,.2)">手动汇总，1–2h</td><td class="c-green">AI 聚合，3 分钟</td></tr>
+    <tr><td style="font-weight:700">PM 角色</td><td style="color:rgba(255,255,255,.2)">信息搬运工</td><td class="c-green" style="font-weight:700">产品决策者</td></tr>
+  </table>
+</div>
+
+<!-- 44: The Transformation Visual -->
+<div class="slide">
+  <div class="a a1" style="display:flex;gap:clamp(36px,6vw,100px);align-items:center;justify-content:center">
+    <div style="text-align:center">
+      <div style="font-size:clamp(44px,5vw,80px);margin-bottom:14px">📋</div>
+      <div style="font-size:clamp(18px,1.8vw,28px);color:rgba(255,255,255,.25)">70% 时间</div>
+      <div style="font-size:clamp(22px,2.2vw,34px);font-weight:700;color:rgba(255,68,58,.6)">信息搬运</div>
+    </div>
+    <div class="a a2" style="font-size:clamp(32px,3.5vw,56px);color:rgba(255,255,255,.06)">→</div>
+    <div class="a a3" style="text-align:center">
+      <div style="font-size:clamp(44px,5vw,80px);margin-bottom:14px">🧠</div>
+      <div style="font-size:clamp(18px,1.8vw,28px);color:rgba(255,255,255,.25)">70% 时间</div>
+      <div style="font-size:clamp(22px,2.2vw,34px);font-weight:700;color:#30d158">产品思考</div>
+    </div>
+  </div>
+</div>
+
+<!-- 45: One More Thing -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="font-weight:300;letter-spacing:-.015em">One more thing.</h1>
+</div>
+
+<!-- 46: The Punchline -->
+<div class="slide">
+  <h1 class="a a1 t-hero" style="max-width:700px;font-weight:600">
+    AI 做初稿。<br>PM 做决策。
+  </h1>
+  <p class="a a2 t-sub" style="margin-top:44px">把每一分钟都花在真正有价值的地方。</p>
+</div>
+
+<!-- 47: Phase 1 CTA -->
+<div class="slide">
+  <p class="a a1 t-sub" style="margin-bottom:28px">Phase 1 可以今天就开始</p>
+  <h1 class="a a2 t-title c-purple">零开发 · 零成本 · 即刻见效</h1>
+</div>
+
+<!-- 48: Thank You -->
+<div class="slide">
+  <h1 class="a a1 t-mega" style="font-weight:300">Thank you.</h1>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<script>
+const S=document.querySelectorAll('.slide');
+let c=0,lock=false;
+const P=document.getElementById('prog');
+const CT=document.getElementById('counter');
+
+function upd(){
+  P.style.width=((c+1)/S.length*100)+'%';
+  CT.textContent=(c+1)+' / '+S.length;
+}
+
+function go(n){
+  if(n<0||n>=S.length||lock)return;
+  lock=true;
+  // Reset old slide animations
+  S[c].querySelectorAll('.a').forEach(e=>{e.style.transitionDelay='0s';e.style.opacity='0';e.style.transform='translateY(14px)'});
+  S[c].classList.remove('active');
+  c=n;
+  setTimeout(()=>{
+    S[c].classList.add('active');
+    // Let CSS handle transitions
+    S[c].querySelectorAll('.a').forEach(e=>{e.style.opacity='';e.style.transform='';e.style.transitionDelay=''});
+    upd();
+    setTimeout(()=>lock=false,400);
+  },220);
+}
+
+document.addEventListener('keydown',e=>{
+  if(['ArrowRight','ArrowDown',' ','PageDown','Enter'].includes(e.key)){e.preventDefault();go(c+1)}
+  if(['ArrowLeft','ArrowUp','PageUp','Backspace'].includes(e.key)){e.preventDefault();go(c-1)}
+  if(e.key==='Home'){e.preventDefault();go(0)}
+  if(e.key==='End'){e.preventDefault();go(S.length-1)}
+  if(e.key==='f'||e.key==='F'){
+    document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{})
+  }
+});
+
+let tx=0;
+document.addEventListener('touchstart',e=>tx=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{const d=tx-e.changedTouches[0].clientX;if(Math.abs(d)>50)d>0?go(c+1):go(c-1)});
+document.addEventListener('click',e=>{if(e.target.closest('a,button'))return;e.clientX>innerWidth/2?go(c+1):go(c-1)});
+
+// Init
+upd();
+</script>
+
+</body>
+</html>
