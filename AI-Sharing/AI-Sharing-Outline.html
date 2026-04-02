@@ -1,0 +1,412 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 实战与思考 — 内部分享</title>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222;
+    --border: #2a2a2a;
+    --text: #e8e8e8;
+    --text2: #999;
+    --text3: #555;
+    --purple: #bf5af2;
+    --teal: #5ac8fa;
+    --green: #30d158;
+    --orange: #ff9f0a;
+    --red: #ff453a;
+    --blue: #2997ff;
+    --radius: 14px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 860px; margin: 0 auto; padding: 48px 32px 120px; }
+
+  /* Cover */
+  .cover { text-align: center; padding: 72px 0 56px; margin-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .cover-label { font-size: 12px; font-weight: 600; letter-spacing: .3em; text-transform: uppercase; color: var(--purple); margin-bottom: 16px; }
+  .cover h1 { font-size: 38px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 14px; }
+  .cover .tagline { font-size: 16px; color: var(--text2); margin-bottom: 28px; max-width: 560px; margin-left: auto; margin-right: auto; }
+  .cover .meta { display: flex; justify-content: center; gap: 24px; font-size: 12px; color: var(--text3); flex-wrap: wrap; }
+
+  /* Agenda */
+  .agenda { display: flex; gap: 14px; margin: 0 0 40px; }
+  .agenda-item { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; text-align: center; border-top: 3px solid; }
+  .agenda-item .a-num { font-size: 11px; color: var(--text3); font-weight: 600; margin-bottom: 6px; }
+  .agenda-item h4 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .agenda-item p { font-size: 12px; color: var(--text2); margin: 0; }
+
+  /* Section */
+  .part { margin-bottom: 56px; }
+  .part-header { display: flex; align-items: center; gap: 14px; margin-bottom: 8px; }
+  .part-num { font-size: 11px; font-weight: 700; letter-spacing: .15em; padding: 4px 12px; border-radius: 20px; flex-shrink: 0; }
+  .part-header h2 { font-size: 26px; font-weight: 700; letter-spacing: -.5px; }
+  .part-purpose { font-size: 14px; color: var(--text3); margin-bottom: 24px; padding-left: 2px; font-style: italic; }
+
+  /* Timeline */
+  .timeline { position: relative; padding-left: 40px; margin: 24px 0; }
+  .timeline::before { content: ''; position: absolute; left: 15px; top: 8px; bottom: 8px; width: 2px; background: var(--border); }
+  .tl-item { position: relative; margin-bottom: 28px; }
+  .tl-item:last-child { margin-bottom: 0; }
+  .tl-dot { position: absolute; left: -40px; top: 4px; width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; }
+  .tl-item h3 { font-size: 17px; font-weight: 700; margin-bottom: 2px; }
+  .tl-item .tl-tag { font-size: 12px; font-weight: 600; margin-bottom: 6px; }
+  .tl-item p { font-size: 14px; color: var(--text2); margin-bottom: 4px; }
+
+  /* Case Card */
+  .case-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; margin-bottom: 18px; border-left: 3px solid;
+  }
+  .case-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 4px; }
+  .case-card .case-sub { font-size: 13px; color: var(--text3); margin-bottom: 16px; }
+  .case-card h4 { font-size: 13px; font-weight: 600; color: var(--text2); margin: 16px 0 6px; letter-spacing: .04em; }
+  .case-card p, .case-card li { font-size: 14px; color: var(--text2); }
+  .case-card ul { padding-left: 18px; margin-bottom: 4px; }
+  .case-card li { margin-bottom: 4px; }
+  .case-result { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 600; padding: 5px 14px; border-radius: 8px; margin-top: 14px; }
+  .case-screenshots { display: flex; gap: 16px; margin: 16px 0 4px; }
+  .case-screenshots .screenshot-item { flex: 1; background: #111; border: 1px solid var(--border); border-radius: 12px; padding: 12px; }
+  .case-screenshots img { width: 100%; border-radius: 8px; display: block; }
+  .case-screenshots .img-caption { font-size: 11px; color: var(--text3); text-align: center; margin-top: 8px; }
+
+  /* Conclusion */
+  .conclusion {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; margin-bottom: 20px; position: relative; overflow: hidden;
+  }
+  .conclusion-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+  .conclusion .c-label { font-size: 12px; font-weight: 700; letter-spacing: .1em; margin-bottom: 8px; }
+  .conclusion h3 { font-size: 20px; font-weight: 700; margin-bottom: 10px; }
+  .conclusion p { font-size: 14px; color: var(--text2); margin-bottom: 8px; }
+  .conclusion ul { font-size: 14px; color: var(--text2); padding-left: 18px; margin-bottom: 8px; }
+  .conclusion li { margin-bottom: 5px; }
+
+  /* Highlight */
+  .hl {
+    background: var(--surface2); border-radius: 10px; padding: 16px 20px;
+    margin: 14px 0; font-size: 14px; color: var(--text2); border-left: 3px solid;
+  }
+  .hl strong { color: var(--text); }
+
+  /* Cards grid */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 22px;
+  }
+  .card .icon { font-size: 26px; margin-bottom: 10px; }
+  .card h4 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+  .card p { font-size: 13px; color: var(--text2); margin: 0; }
+
+  /* Industry status */
+  .status-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; margin-top: 20px;
+  }
+  .status-box h4 { font-size: 15px; font-weight: 700; margin-bottom: 10px; }
+  .status-box p { font-size: 14px; color: var(--text2); margin-bottom: 6px; }
+
+  /* Summary */
+  .summary-box {
+    background: linear-gradient(135deg, rgba(191,90,242,.06), rgba(90,200,250,.06));
+    border: 1px solid rgba(191,90,242,.15); border-radius: var(--radius);
+    padding: 32px; text-align: center;
+  }
+  .summary-box h3 { font-size: 22px; font-weight: 700; margin-bottom: 10px; }
+  .summary-box p { font-size: 15px; color: var(--text2); max-width: 580px; margin: 0 auto 8px; }
+
+  hr { border: none; border-top: 1px solid var(--border); margin: 44px 0; }
+
+  @media (max-width: 640px) {
+    .container { padding: 28px 16px 80px; }
+    .cover h1 { font-size: 28px; }
+    .agenda { flex-direction: column; }
+    .card-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- ═══════════ COVER ═══════════ -->
+<div class="cover">
+  <div class="cover-label">Internal Sharing</div>
+  <h1>AI 实战与思考</h1>
+  <div class="tagline">从技术演进到生产力真相 — 一个产品经理视角的 AI 认知与实践</div>
+  <div class="meta">
+    <span>统一对 AI 的认知</span>
+    <span>·</span>
+    <span>打破盲目崇拜或畏惧</span>
+    <span>·</span>
+    <span>鼓励全员探索 AI 实用价值</span>
+  </div>
+</div>
+
+<!-- Agenda -->
+<div class="agenda">
+  <div class="agenda-item" style="border-top-color:var(--purple)">
+    <div class="a-num">Part 1</div>
+    <h4>认知对齐</h4>
+    <p>AI 技术演进与行业现状</p>
+  </div>
+  <div class="agenda-item" style="border-top-color:var(--teal)">
+    <div class="a-num">Part 2</div>
+    <h4>躬身入局</h4>
+    <p>我的三个 AI 探索案例</p>
+  </div>
+  <div class="agenda-item" style="border-top-color:var(--green)">
+    <div class="a-num">Part 3</div>
+    <h4>核心结论</h4>
+    <p>AI 效能真相与行动建议</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════
+     PART 1: 认知对齐
+     ═══════════════════════════════════════════ -->
+<div class="part">
+  <div class="part-header">
+    <span class="part-num" style="background:rgba(191,90,242,.12);color:var(--purple)">PART 1</span>
+    <h2>认知对齐：我眼中的 AI 与行业现状</h2>
+  </div>
+  <div class="part-purpose">帮大家梳理 AI 是怎么一步步发展到今天的，理清概念，明确我们现在处于什么阶段。</div>
+
+  <h3 style="font-size:16px;font-weight:700;margin-bottom:18px;color:var(--purple)">技术演进的四个关键跃迁</h3>
+
+  <div class="timeline">
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:rgba(255,159,10,.12);color:var(--orange)">1</div>
+      <h3>机器学习 <span style="font-weight:400;font-size:13px;color:var(--text3)">Machine Learning</span></h3>
+      <div class="tl-tag" style="color:var(--orange)">"经验主义"</div>
+      <p>基于历史数据寻找规律，预测未来。</p>
+      <p>典型应用：早期的商品推荐、垃圾邮件拦截。</p>
+      <div class="hl" style="border-left-color:var(--orange)">机器能从数据中学规律了，但需要人告诉它"看哪里"（特征工程）。</div>
+      <div class="case-screenshots" style="margin-top:14px">
+        <div class="screenshot-item">
+          <img src="ai-share-img-7.png" alt="TensorFlow 神经网络计算图">
+          <div class="img-caption">2017 年入坑：TensorFlow 神经网络计算图</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="ai-share-img-8.png" alt="TensorBoard 训练可视化">
+          <div class="img-caption">TensorBoard 训练过程可视化（权重/偏置/输出）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:rgba(41,151,255,.12);color:var(--blue)">2</div>
+      <h3>深度学习 <span style="font-weight:400;font-size:13px;color:var(--text3)">Deep Learning</span></h3>
+      <div class="tl-tag" style="color:var(--blue)">"黑盒突破"</div>
+      <p>神经网络的兴起，让机器能够自己提取特征。在图像识别、语音等特定领域超越人类表现。</p>
+      <div class="hl" style="border-left-color:var(--blue)">机器学会了"看"和"听"（感知智能），但还不会"想"和"说"。</div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:rgba(191,90,242,.12);color:var(--purple)">3</div>
+      <h3>大模型 <span style="font-weight:400;font-size:13px;color:var(--text3)">LLM</span></h3>
+      <div class="tl-tag" style="color:var(--purple)">"通才诞生"</div>
+      <p>涌现出了强大的自然语言理解、逻辑推理和泛化能力。机器开始"听得懂人话"了。</p>
+      <div class="hl" style="border-left-color:var(--purple)">机器学会了"想"和"说"（认知智能），但还不会"做"。</div>
+      <div class="case-screenshots" style="margin-top:14px">
+        <div class="screenshot-item">
+          <img src="ai-share-img-5.png" alt="ChatGPT 解释大模型与机器学习的关系">
+          <div class="img-caption">大模型的本质：机器学习 → 深度学习 → 大规模神经网络</div>
+        </div>
+        <div class="screenshot-item">
+          <img src="ai-share-img-6.png" alt="ChatGPT 解释下一阶段是 Agent">
+          <div class="img-caption">下一阶段共识：从"更大的模型"到"会行动的模型"（Agent）</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tl-item">
+      <div class="tl-dot" style="background:rgba(48,209,88,.12);color:var(--green)">4</div>
+      <h3>Agent <span style="font-weight:400;font-size:13px;color:var(--text3)">智能体</span></h3>
+      <div class="tl-tag" style="color:var(--green)">"长出四肢"</div>
+      <p>AI 不再只是一个聊天框，而是有了目标驱动力。它能拆解任务、调用外部工具（API）、执行动作。</p>
+      <p>比如通过 OpenClaw 这样的框架，将大模型接入飞书、Slack、Discord 等办公环境，实现跨平台的工作流自动化。</p>
+      <div class="hl" style="border-left-color:var(--green)">机器正在学习"做"（执行智能），但可靠性是最大的未解问题。</div>
+    </div>
+
+  </div>
+
+  <div class="status-box" style="margin-top:28px">
+    <h4 style="color:var(--orange)">行业现状：冷静期</h4>
+    <p>从"百模大战"的基建期，进入了现在的<strong style="color:var(--text)">"应用落地和商业化"探索期</strong>。</p>
+    <p>大家都在寻找真正的 PMF（产品市场契合度），但普遍发现：<strong style="color:var(--orange)">做 Demo 很容易，做真正稳定交付的工程化产品极难</strong>。</p>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════
+     PART 2: 躬身入局
+     ═══════════════════════════════════════════ -->
+<div class="part">
+  <div class="part-header">
+    <span class="part-num" style="background:rgba(90,200,250,.12);color:var(--teal)">PART 2</span>
+    <h2>躬身入局：我的 AI 探索</h2>
+  </div>
+  <div class="part-purpose">用真实的个人折腾经历，告诉大家 AI 不是高高在上的概念，而是可以切实融入生活和工作的工具。</div>
+
+  <!-- Case 1 -->
+  <div class="case-card" style="border-left-color:var(--green)">
+    <h3>Case 1：自动化发布闲鱼商品</h3>
+    <div class="case-sub">RPA + 大模型 · 已落地</div>
+    <h4>怎么做</h4>
+    <p>结合 RPA（机器人流程自动化）与大模型，实现商品信息的自动提取、文案润色和自动上架。</p>
+    <h4>实际操作截图</h4>
+    <div class="case-screenshots">
+      <div class="screenshot-item">
+        <img src="ai-share-img-1.png" alt="在 Discord 中向 AI Bot 发送商品图片和指令">
+        <div class="img-caption">Step 1 — 向 Bot 发送商品图片和指令，AI 自动调用搜索进行定价参考</div>
+      </div>
+      <div class="screenshot-item">
+        <img src="ai-share-img-2.png" alt="AI Bot 自动生成商品信息并请求确认发布">
+        <div class="img-caption">Step 2 — AI 自动生成商品标题、描述、定价，确认后自动发布到闲鱼</div>
+      </div>
+    </div>
+    <h4>收获</h4>
+    <p>AI 擅长处理<strong style="color:var(--text)">标准化、重复性的重体力劳动</strong>。</p>
+    <div class="case-result" style="background:rgba(48,209,88,.08);color:var(--green)">
+      ✓ 已落地 — 重复劳动被 AI 替代，效果明显
+    </div>
+  </div>
+
+  <!-- Case 2 -->
+  <div class="case-card" style="border-left-color:var(--orange)">
+    <h3>Case 2：自动查询机票</h3>
+    <div class="case-sub">AI Agent 调用接口 · 部分实现</div>
+    <h4>怎么做</h4>
+    <p>通过让 AI 调用航班查询接口，根据特定意图筛选出合适的机票信息。</p>
+    <h4>实际操作截图</h4>
+    <div class="case-screenshots">
+      <div class="screenshot-item">
+        <img src="ai-share-img-3.png" alt="AI Bot 自动登录携程并发送验证码">
+        <div class="img-caption">AI 自动操作携程登录，处理验证码流程</div>
+      </div>
+      <div class="screenshot-item">
+        <img src="ai-share-img-4.png" alt="AI Bot 查询航班并给出建议方案">
+        <div class="img-caption">AI 查询航班信息，自动比价并给出建议方案</div>
+      </div>
+    </div>
+    <h4>痛点与卡点</h4>
+    <p>最终卡在了<strong style="color:var(--orange)">支付环节</strong>。这暴露了当前 AI Agent 最大的限制之一 — 难以跨越安全性要求极高的授权和闭环支付墙。</p>
+    <p><strong style="color:var(--text)">商业交易的最后一公里极难攻克。</strong></p>
+    <div class="case-result" style="background:rgba(255,159,10,.08);color:var(--orange)">
+      △ 部分落地 — AI 在"最后一公里"遇到真实世界的墙
+    </div>
+  </div>
+
+  <!-- Case 3 -->
+  <div class="case-card" style="border-left-color:var(--purple)">
+    <h3>Case 3：Claude Code 生成产品文档</h3>
+    <div class="case-sub">PRD / 流程管理 · 持续使用中</div>
+    <h4>怎么做</h4>
+    <p>在 MacBook 终端直接运行 Claude Code，只输入核心思路和骨架，让 AI 帮我补全格式、扩充细节，搭出完整的产品流程管理结构。</p>
+    <h4>收获</h4>
+    <p>极大地缓解了<strong style="color:var(--text)">"白纸焦虑"</strong>。AI 变成了我思考的放大器 — 它负责繁琐的文档化，我负责核心逻辑。</p>
+    <div class="case-result" style="background:rgba(191,90,242,.08);color:var(--purple)">
+      ✓ 持续使用 — 人 + AI 协作的最佳实践样本
+    </div>
+  </div>
+
+  <div class="hl" style="border-left-color:var(--teal);margin-top:8px">
+    <strong>三个案例的共同规律：</strong>AI 在信息处理、内容生成、重复操作上效果显著；但在需要与现实世界交互（支付验证）和需要业务判断（产品决策）的环节，仍然需要人来完成。
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════════════════════════════════════
+     PART 3: 核心结论
+     ═══════════════════════════════════════════ -->
+<div class="part">
+  <div class="part-header">
+    <span class="part-num" style="background:rgba(48,209,88,.12);color:var(--green)">PART 3</span>
+    <h2>核心结论：AI 效能的真相与"半自动化陷阱"</h2>
+  </div>
+  <div class="part-purpose">抛出最核心的观点，拉齐预期的同时，指出当下的痛点。</div>
+
+  <!-- 结论一 -->
+  <div class="conclusion">
+    <div class="conclusion-bar" style="background:var(--orange)"></div>
+    <div class="c-label" style="color:var(--orange)">结论一</div>
+    <h3>有量变，无质变</h3>
+    <p>AI 确实能提高生产力，压缩我们在单点任务上的时间成本 — 写周报、查资料、写基础代码。</p>
+    <p>但目前它并<strong style="color:var(--text)">没有带来质的飞跃</strong>。它更像是一个"优秀的实习生"，而不是"全能的资深专家"。</p>
+  </div>
+
+  <!-- 结论二 -->
+  <div class="conclusion">
+    <div class="conclusion-bar" style="background:var(--purple)"></div>
+    <div class="c-label" style="color:var(--purple)">结论二</div>
+    <h3>为什么会卡在这里？</h3>
+
+    <p style="font-weight:700;color:var(--text);margin:14px 0 6px">瓶颈 1：模型能力的上限</p>
+    <p>幻觉依然存在，复杂逻辑和极度垂直的专业领域，AI 依然无法完全满足精准无误的需求。</p>
+
+    <p style="font-weight:700;color:var(--text);margin:18px 0 6px">瓶颈 2：单节点 AI 的工作流摩擦成本</p>
+
+    <div class="hl" style="border-left-color:var(--purple);margin:14px 0">
+      <strong>"政企办事"比喻：</strong><br><br>
+      现在的 AI 落地，就像去政府部门办事。部分系统已经数字化（AI 赋能节点），但中间环节还需要你拿着纸质材料去另一个窗口盖章（人工干预节点）。<br><br>
+      这种<strong>"半自动化"导致新旧工作流割裂</strong>。数据在系统和人工之间来回倒腾，沟通和校验成本极高。<br><br>
+      <strong style="color:var(--orange)">有时候为了让 AI 懂你的意思去写 Prompt，修改的时间比自己直接写还要慢。</strong>
+    </div>
+  </div>
+
+  <!-- 结论三 -->
+  <div class="conclusion">
+    <div class="conclusion-bar" style="background:var(--green)"></div>
+    <div class="c-label" style="color:var(--green)">结论三</div>
+    <h3>现阶段我们该怎么做？</h3>
+
+    <div class="card-grid" style="margin:18px 0 8px">
+      <div class="card" style="border-top:2px solid var(--green)">
+        <div class="icon">🔧</div>
+        <h4>保持工具理性</h4>
+        <p>别把 AI 当神，也别觉得 AI 没用。把它当成一把高级的瑞士军刀。</p>
+      </div>
+      <div class="card" style="border-top:2px solid var(--green)">
+        <div class="icon">💪</div>
+        <h4>全员武装</h4>
+        <p>每个人都应该具备使用 AI 的能力，培养与 AI"协同工作"的直觉。</p>
+      </div>
+      <div class="card" style="border-top:2px solid var(--green)">
+        <div class="icon">🎯</div>
+        <h4>从小处开始</h4>
+        <p>先从手头最痛、最重复的一个小任务开始改造。哪怕只是用 AI 帮你写邮件、总结会议纪要。</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<hr>
+
+<!-- ═══════════ CLOSING ═══════════ -->
+<div class="summary-box">
+  <h3>总结</h3>
+  <p style="margin-bottom:12px">AI 从 预测 → 感知 → 认知 → 执行，正在一步步接近通用智能。</p>
+  <p style="margin-bottom:12px">但今天，它更像是一个<strong>高效但不完美的助手</strong>。</p>
+  <p>不要等待完美，<strong>从现在开始，让 AI 成为你工作方式的一部分</strong>。</p>
+</div>
+
+<div style="text-align:center;padding:48px 0 0;font-size:12px;color:var(--text3)">
+  — End —
+</div>
+
+</div>
+</body>
+</html>
