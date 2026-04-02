@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI 赋能产品经理工作流 — 优化方案</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #242424;
+    --surface3: #2e2e2e;
+    --accent: #6c5ce7;
+    --accent2: #00cec9;
+    --accent3: #fd79a8;
+    --accent4: #fdcb6e;
+    --accent5: #55efc4;
+    --orange: #e17055;
+    --text: #e8e8e8;
+    --text2: #a0a0a0;
+    --text3: #666;
+    --border: #333;
+    --radius: 12px;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'SF Pro Text', 'Helvetica Neue', 'PingFang SC', 'Noto Sans CJK SC', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.75; -webkit-font-smoothing: antialiased;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    padding: 28px 16px; overflow-y: auto; z-index: 100;
+  }
+  nav .logo { font-size: 18px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
+  nav .subtitle { font-size: 11px; color: var(--text3); margin-bottom: 28px; letter-spacing: 0.5px; }
+  nav a {
+    display: block; padding: 6px 10px; margin-bottom: 1px;
+    color: var(--text2); text-decoration: none; font-size: 12px;
+    border-radius: 6px; transition: all .2s;
+  }
+  nav a:hover { background: var(--surface2); color: var(--text); }
+  nav .nav-group { color: var(--text3); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 16px 0 6px; padding-left: 10px; }
+
+  /* MAIN */
+  main { margin-left: 240px; max-width: 920px; padding: 48px 48px 120px; }
+
+  /* COVER */
+  .cover { text-align: center; padding: 60px 0 48px; margin-bottom: 48px; border-bottom: 1px solid var(--border); }
+  .cover h1 { font-size: 42px; font-weight: 800; letter-spacing: -1.5px; margin-bottom: 10px; background: linear-gradient(135deg, var(--accent), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .cover .tagline { font-size: 17px; color: var(--text2); margin-bottom: 24px; }
+  .cover .meta { display: flex; justify-content: center; gap: 24px; font-size: 12px; color: var(--text3); }
+
+  /* SECTIONS */
+  section { margin-bottom: 56px; }
+  h2 { font-size: 24px; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 2px solid var(--accent); display: inline-block; }
+  h3 { font-size: 17px; font-weight: 600; margin: 28px 0 12px; color: var(--accent2); }
+  h4 { font-size: 14px; font-weight: 600; margin: 18px 0 8px; color: var(--text); }
+  p { margin-bottom: 14px; color: var(--text2); font-size: 14px; }
+  ul, ol { margin-bottom: 14px; padding-left: 22px; color: var(--text2); font-size: 14px; }
+  li { margin-bottom: 5px; }
+  strong { color: var(--text); }
+  blockquote {
+    border-left: 3px solid var(--accent); padding: 14px 18px; margin: 16px 0;
+    background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0;
+    color: var(--text2); font-style: italic; font-size: 14px;
+  }
+
+  /* TABLE */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 13px; }
+  th { background: var(--surface2); color: var(--text); text-align: left; padding: 10px 14px; font-weight: 600; }
+  td { padding: 9px 14px; border-bottom: 1px solid var(--border); color: var(--text2); }
+  tr:hover td { background: var(--surface); }
+
+  /* CARDS */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin: 16px 0; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 20px; transition: all .2s;
+  }
+  .card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .card .icon { font-size: 24px; margin-bottom: 10px; }
+  .card h4 { margin: 0 0 6px; font-size: 14px; }
+  .card p { font-size: 12px; margin: 0; }
+
+  /* BADGE */
+  .badge {
+    display: inline-block; padding: 2px 8px; border-radius: 16px;
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;
+  }
+  .badge.now { background: #6c5ce733; color: var(--accent); }
+  .badge.soon { background: #00cec933; color: var(--accent2); }
+  .badge.later { background: #66666633; color: var(--text2); }
+  .badge.pain { background: #e1705533; color: var(--orange); }
+
+  /* MERMAID */
+  .mermaid-wrap {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 28px; margin: 20px 0; overflow-x: auto;
+  }
+  .mermaid { text-align: center; }
+
+  /* COMPARE */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 20px 0; }
+  .compare-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px;
+  }
+  .compare-box.before { border-left: 3px solid var(--orange); }
+  .compare-box.after { border-left: 3px solid var(--accent5); }
+  .compare-box h4 { margin-top: 0; }
+
+  /* SOP */
+  .sop { counter-reset: sop-step; margin: 16px 0; }
+  .sop-step {
+    counter-increment: sop-step; position: relative; padding: 16px 16px 16px 56px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    margin-bottom: 10px;
+  }
+  .sop-step::before {
+    content: counter(sop-step); position: absolute; left: 16px; top: 16px;
+    width: 28px; height: 28px; border-radius: 50%; background: var(--accent);
+    color: #fff; font-size: 13px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sop-step h4 { margin: 0 0 4px; font-size: 13px; }
+  .sop-step p { margin: 0; font-size: 12px; }
+  .sop-step .ai-tag {
+    display: inline-block; background: var(--accent2); color: #000; font-size: 9px;
+    padding: 1px 6px; border-radius: 8px; font-weight: 600; margin-left: 6px; vertical-align: middle;
+  }
+
+  /* TIMELINE */
+  .roadmap { position: relative; padding-left: 28px; margin: 20px 0; }
+  .roadmap::before { content: ''; position: absolute; left: 8px; top: 0; bottom: 0; width: 2px; background: var(--border); }
+  .roadmap-item { position: relative; margin-bottom: 24px; }
+  .roadmap-item::before {
+    content: ''; position: absolute; left: -24px; top: 6px;
+    width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+  .roadmap-item.active::before { background: var(--accent); }
+  .roadmap-item h4 { margin: 0 0 4px; font-size: 14px; }
+  .roadmap-item .time { font-size: 11px; color: var(--accent); margin-bottom: 6px; }
+  .roadmap-item ul { font-size: 12px; margin: 0; padding-left: 18px; }
+
+  /* TOOL CARD */
+  .tool-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; margin: 16px 0; }
+  .tool-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
+    padding: 18px; display: flex; gap: 14px; align-items: flex-start;
+  }
+  .tool-card .tool-icon {
+    width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center;
+    justify-content: center; font-size: 20px; flex-shrink: 0;
+  }
+  .tool-card h4 { margin: 0 0 4px; font-size: 14px; }
+  .tool-card p { margin: 0; font-size: 11px; color: var(--text3); }
+  .tool-card .scene { font-size: 11px; color: var(--accent2); margin-top: 4px; }
+
+  @media (max-width: 900px) {
+    nav { display: none; }
+    main { margin-left: 0; padding: 28px 18px 80px; }
+    .cover h1 { font-size: 28px; }
+    .compare { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="logo">AI + PM</div>
+  <div class="subtitle">产品经理工作流优化方案</div>
+
+  <div class="nav-group">诊断</div>
+  <a href="#diagnosis">现状诊断</a>
+  <a href="#pain">痛点分析</a>
+
+  <div class="nav-group">Part 1 · 信息流</div>
+  <a href="#info-before">当前信息流</a>
+  <a href="#info-after">AI 优化后信息流</a>
+  <a href="#one-sentence">一句话需求 → PRD</a>
+  <a href="#change-track">需求变更追踪</a>
+
+  <div class="nav-group">Part 2 · 工具协同</div>
+  <a href="#tool-before">当前工具现状</a>
+  <a href="#tool-after">AI 中枢架构</a>
+  <a href="#dashboard">进度看板方案</a>
+
+  <div class="nav-group">选型与落地</div>
+  <a href="#ai-tools">AI 工具选型</a>
+  <a href="#roadmap">落地路线图</a>
+
+  <div class="nav-group">SOP</div>
+  <a href="#sop-receive">需求接收 SOP</a>
+  <a href="#sop-prd">PRD 撰写 SOP</a>
+  <a href="#sop-progress">进度汇报 SOP</a>
+  <a href="#sop-change">需求变更 SOP</a>
+</nav>
+
+<main>
+
+<!-- COVER -->
+<div class="cover">
+  <h1>AI 赋能产品经理工作流</h1>
+  <p class="tagline">从信息混乱到有序协同，让 AI 成为你的第二大脑</p>
+  <div class="meta">
+    <span>v1.0</span>
+    <span>2026-03-28</span>
+    <span>适用角色：互联网应用产品经理</span>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- SECTION 1: DIAGNOSIS -->
+<!-- ============================================================ -->
+<section id="diagnosis">
+  <h2>一、现状诊断</h2>
+
+  <h3>1.1 当前工作流全景</h3>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart LR
+    subgraph 需求来源
+        A["+2 老板的老板"]
+        B["+1 直属上级"]
+    end
+
+    subgraph PM工作区
+        C["PM (你)"]
+        D["语雀<br>写 PRD"]
+        E["钉钉<br>群讨论/会议"]
+        F["Figma<br>看设计"]
+    end
+
+    subgraph 协作方
+        G["研发"]
+        H["设计"]
+        I["测试"]
+    end
+
+    subgraph 后续
+        J["Aone<br>Bug 跟进"]
+        K["WA<br>数据报表"]
+    end
+
+    A -- "模糊需求/口头传达" --> B
+    B -- "一句话需求/频繁变更" --> C
+    C -- "手动撰写 PRD" --> D
+    C -- "沟通需求/会议" --> E
+    C -- "确认设计" --> F
+    D -- "PRD 评审" --> G
+    D -- "PRD 评审" --> H
+    D -- "PRD 评审" --> I
+    G -- "Bug 提交" --> J
+    G -- "上线" --> K
+    C -. "手动汇总进度" .-> B
+
+    style A fill:#e17055,color:#fff,stroke:none
+    style B fill:#e17055,color:#fff,stroke:none
+    style C fill:#6c5ce7,color:#fff,stroke:none
+    style D fill:#242424,color:#e8e8e8,stroke:#444
+    style E fill:#242424,color:#e8e8e8,stroke:#444
+    style F fill:#242424,color:#e8e8e8,stroke:#444
+    style J fill:#242424,color:#e8e8e8,stroke:#444
+    style K fill:#242424,color:#e8e8e8,stroke:#444
+    </pre>
+  </div>
+
+  <h3 id="pain">1.2 痛点分析矩阵</h3>
+  <table>
+    <tr><th>痛点</th><th>影响范围</th><th>频率</th><th>严重度</th><th>根因</th></tr>
+    <tr>
+      <td><span class="badge pain">P0</span> 需求信息在传递中丢失/变形</td>
+      <td>全项目组</td><td>每次需求</td><td>高</td>
+      <td>口头传达无记录，多次变更无 diff</td>
+    </tr>
+    <tr>
+      <td><span class="badge pain">P0</span> "一句话需求"缺少背景和细节</td>
+      <td>PM + 研发</td><td>高频</td><td>高</td>
+      <td>上级默认你理解全部上下文</td>
+    </tr>
+    <tr>
+      <td><span class="badge pain">P0</span> 进度汇报输出成本高</td>
+      <td>PM</td><td>每周/临时</td><td>中高</td>
+      <td>信息散落在 5 个工具，需手动汇总</td>
+    </tr>
+    <tr>
+      <td><span class="badge pain">P1</span> 需求变更无法追溯</td>
+      <td>PM + 研发</td><td>高频</td><td>中</td>
+      <td>变更通过聊天/口头，无版本管理</td>
+    </tr>
+    <tr>
+      <td><span class="badge pain">P1</span> 工具切换频繁，上下文丢失</td>
+      <td>PM</td><td>每天</td><td>中</td>
+      <td>5 个独立工具无互通</td>
+    </tr>
+    <tr>
+      <td><span class="badge pain">P2</span> 会议纪要与 PRD 脱节</td>
+      <td>PM + 协作方</td><td>每次会议</td><td>低</td>
+      <td>会议结论需手动同步到文档</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 2: PART 1 — INFO FLOW -->
+<!-- ============================================================ -->
+<section id="info-flow">
+  <h2>二、Part 1 — AI 赋能信息流</h2>
+
+  <h3 id="info-before">2.1 当前信息流（Before）</h3>
+  <div class="compare">
+    <div class="compare-box before">
+      <h4 style="color:var(--orange);">现状问题</h4>
+      <ul>
+        <li>+2 的战略意图到 PM 时已经过两层"翻译"，信息衰减</li>
+        <li>+1 可能口头/钉钉转述，无结构化记录</li>
+        <li>PM 凭记忆理解需求，写完 PRD 后发现与上级期望有偏差</li>
+        <li>需求变更通过钉钉群零散通知，容易遗漏</li>
+        <li>协作方（研发/设计/测试）拿到的信息是 PM 的"二次加工"，可能再次走样</li>
+      </ul>
+    </div>
+    <div class="compare-box after">
+      <h4 style="color:var(--accent5);">理想状态</h4>
+      <ul>
+        <li>每层传递都有 AI 辅助记录和结构化</li>
+        <li>AI 自动提问补全缺失信息</li>
+        <li>需求变更自动生成 diff，所有人看到同一版本</li>
+        <li>PM 从"信息翻译者"变为"信息审核者"</li>
+        <li>协作方直接获取结构化的、有上下文的需求文档</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="info-after">2.2 AI 优化后信息流（After）</h3>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TD
+    A["+2 老板的老板<br>战略意图/业务目标"] --> |"口头/文字"| AI1
+
+    subgraph AI_LAYER ["🤖 AI 信息中枢"]
+        AI1["📝 AI 记录 & 结构化<br>将口头/碎片信息转为结构化需求卡"]
+        AI2["❓ AI 追问引擎<br>自动识别信息缺口并生成追问清单"]
+        AI3["📊 AI Diff 引擎<br>需求变更对比 & 影响分析"]
+    end
+
+    A --> |"口头/文字"| B["+1 直属上级"]
+    B --> |"转述/补充"| AI1
+    AI1 --> AI2
+    AI2 --> |"追问清单"| C["PM (你)<br>审核 & 补全"]
+    C --> |"确认/修改"| AI1
+    AI1 --> |"生成 PRD 初稿"| D["语雀 PRD"]
+
+    B -. "需求变更" .-> AI3
+    AI3 -. "变更 Diff 通知" .-> C
+    AI3 -. "变更 Diff 通知" .-> E["研发/设计/测试"]
+
+    D --> E
+
+    style AI1 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style AI2 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style AI3 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style AI_LAYER fill:#1a1a2e,stroke:#6c5ce7
+    style C fill:#6c5ce7,color:#fff,stroke:none
+    </pre>
+  </div>
+
+  <h4>AI 在每个节点的角色</h4>
+  <table>
+    <tr><th>节点</th><th>AI 角色</th><th>具体动作</th><th>输出物</th></tr>
+    <tr>
+      <td>+2 → +1</td>
+      <td>旁听记录员</td>
+      <td>会议/钉钉消息自动摘要，提取关键决策和目标</td>
+      <td>结构化会议摘要</td>
+    </tr>
+    <tr>
+      <td>+1 → PM</td>
+      <td>追问助手</td>
+      <td>基于需求模板，自动识别缺失字段并生成追问清单</td>
+      <td>追问清单 + 需求卡初稿</td>
+    </tr>
+    <tr>
+      <td>PM 撰写 PRD</td>
+      <td>写作副驾</td>
+      <td>基于需求卡自动生成 PRD 框架，PM 审核修改</td>
+      <td>PRD 初稿</td>
+    </tr>
+    <tr>
+      <td>PM → 协作方</td>
+      <td>翻译适配器</td>
+      <td>根据受众角色自动生成不同视角的摘要（研发看技术要点，设计看交互要点）</td>
+      <td>角色定制化需求摘要</td>
+    </tr>
+    <tr>
+      <td>需求变更</td>
+      <td>变更雷达</td>
+      <td>监听钉钉/语雀中的变更信息，自动生成 diff 并通知相关人</td>
+      <td>变更 Diff 报告</td>
+    </tr>
+  </table>
+
+  <!-- ONE SENTENCE -->
+  <h3 id="one-sentence">2.3 "一句话需求" → 完整 PRD 流程</h3>
+  <p>这是产品经理最常遇到的场景：上级丢来一句话，你需要从中推导出完整的产品方案。AI 可以将这个过程从"PM 独自脑补"变为"PM + AI 结构化共创"。</p>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TD
+    START(("上级: '做一个XX功能'")) --> STEP1
+
+    STEP1["🤖 AI Step 1: 需求解析<br>解析一句话，提取关键实体<br>（用户/场景/目标/约束）"]
+    STEP1 --> STEP2
+
+    STEP2["🤖 AI Step 2: 追问补全<br>对照需求模板，<br>列出缺失维度的追问清单"]
+    STEP2 --> PM1
+
+    PM1{"PM: 回答追问<br>补充背景和约束"}
+    PM1 --> |"逐条回答"| STEP3
+
+    STEP3["🤖 AI Step 3: 需求卡生成<br>生成结构化需求卡<br>(背景/目标/范围/约束/验收标准)"]
+    STEP3 --> PM2
+
+    PM2{"PM: 审核需求卡<br>修正偏差"}
+    PM2 --> |"确认"| STEP4
+
+    STEP4["🤖 AI Step 4: PRD 初稿<br>基于需求卡生成完整 PRD<br>包含功能清单/流程图/边界条件"]
+    STEP4 --> PM3
+
+    PM3{"PM: 精修 PRD<br>补充业务判断和产品决策"}
+    PM3 --> |"定稿"| DONE
+
+    DONE(("✅ 完整 PRD<br>发布到语雀"))
+
+    style START fill:#e17055,color:#fff,stroke:none
+    style STEP1 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style STEP2 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style STEP3 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style STEP4 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style PM1 fill:#6c5ce7,color:#fff,stroke:none
+    style PM2 fill:#6c5ce7,color:#fff,stroke:none
+    style PM3 fill:#6c5ce7,color:#fff,stroke:none
+    style DONE fill:#55efc4,color:#000,stroke:none
+    </pre>
+  </div>
+
+  <h4>AI 追问模板（示例）</h4>
+  <p>当上级说"做一个优惠券功能"，AI 自动生成以下追问清单：</p>
+  <div class="card-grid">
+    <div class="card">
+      <div class="icon">🎯</div>
+      <h4>业务目标</h4>
+      <p>这个功能要解决什么业务问题？期望提升哪个指标？有量化目标吗？</p>
+    </div>
+    <div class="card">
+      <div class="icon">👤</div>
+      <h4>目标用户</h4>
+      <p>面向所有用户还是特定人群？新客/老客/流失用户？</p>
+    </div>
+    <div class="card">
+      <div class="icon">📦</div>
+      <h4>功能范围</h4>
+      <p>包含哪些券种？是否需要后台管理？是否涉及第三方对接？</p>
+    </div>
+    <div class="card">
+      <div class="icon">⏰</div>
+      <h4>时间约束</h4>
+      <p>期望上线时间？是否有活动节点？是否可以分期上线？</p>
+    </div>
+    <div class="card">
+      <div class="icon">🚫</div>
+      <h4>边界与约束</h4>
+      <p>有预算上限吗？有不能做的事项吗？有合规要求吗？</p>
+    </div>
+    <div class="card">
+      <div class="icon">✅</div>
+      <h4>验收标准</h4>
+      <p>什么样的结果算做完了？上级怎么判断这个功能成功了？</p>
+    </div>
+  </div>
+
+  <!-- CHANGE TRACKING -->
+  <h3 id="change-track">2.4 需求变更追踪机制</h3>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart LR
+    subgraph 变更来源
+        S1["钉钉群消息"]
+        S2["会议口头变更"]
+        S3["语雀评论"]
+    end
+
+    subgraph AI_CHANGE ["🤖 AI 变更引擎"]
+        C1["变更识别<br>从聊天/会议中<br>提取需求变更意图"]
+        C2["Diff 生成<br>对比现有 PRD<br>标记修改点"]
+        C3["影响分析<br>评估变更对<br>研发/设计/排期的影响"]
+    end
+
+    subgraph 输出
+        O1["📋 变更记录卡<br>谁/何时/改了什么"]
+        O2["📊 PRD Diff 文档<br>红色删除/绿色新增"]
+        O3["📢 通知推送<br>@相关人 + 摘要"]
+    end
+
+    S1 --> C1
+    S2 --> C1
+    S3 --> C1
+    C1 --> C2
+    C2 --> C3
+    C3 --> O1
+    C3 --> O2
+    C3 --> O3
+
+    style C1 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style C2 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style C3 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style AI_CHANGE fill:#1a1a2e,stroke:#6c5ce7
+    </pre>
+  </div>
+
+  <h4>变更记录卡模板</h4>
+  <div class="card" style="max-width:500px;">
+    <h4 style="margin-top:0;">🔄 需求变更 #003</h4>
+    <table style="margin:8px 0;">
+      <tr><td style="width:80px;color:var(--text3);">变更人</td><td>+1 张总</td></tr>
+      <tr><td style="color:var(--text3);">变更时间</td><td>2026-03-28 14:30</td></tr>
+      <tr><td style="color:var(--text3);">来源</td><td>钉钉群消息</td></tr>
+      <tr><td style="color:var(--text3);">原需求</td><td>优惠券仅支持满减</td></tr>
+      <tr><td style="color:var(--text3);">变更为</td><td><span style="color:var(--accent5);">增加折扣券类型</span></td></tr>
+      <tr><td style="color:var(--text3);">影响范围</td><td>后端接口 +2、前端页面 +1、测试用例 +8</td></tr>
+      <tr><td style="color:var(--text3);">排期影响</td><td><span style="color:var(--orange);">预计延期 2 天</span></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 3: PART 2 — TOOL COLLABORATION -->
+<!-- ============================================================ -->
+<section id="tool-collab">
+  <h2>三、Part 2 — AI 赋能工具协同</h2>
+
+  <h3 id="tool-before">3.1 当前工具现状（Before）</h3>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TD
+    PM["PM (你)"] --> |"手动切换"| T1["语雀<br>📝 PRD"]
+    PM --> |"手动切换"| T2["钉钉<br>💬 沟通/会议"]
+    PM --> |"手动切换"| T3["Figma<br>🎨 设计图"]
+    PM --> |"手动切换"| T4["Aone<br>🐛 Bug"]
+    PM --> |"手动切换"| T5["WA<br>📊 报表"]
+
+    T1 -.- |"❌ 不互通"| T2
+    T2 -.- |"❌ 不互通"| T3
+    T3 -.- |"❌ 不互通"| T4
+    T4 -.- |"❌ 不互通"| T5
+
+    PM --> |"手动汇总<br>所有工具信息"| REPORT["📄 进度报告<br>⏱️ 耗时 1-2 小时"]
+
+    style PM fill:#6c5ce7,color:#fff,stroke:none
+    style REPORT fill:#e1705533,stroke:#e17055,color:#e8e8e8
+    style T1 fill:#242424,color:#e8e8e8,stroke:#444
+    style T2 fill:#242424,color:#e8e8e8,stroke:#444
+    style T3 fill:#242424,color:#e8e8e8,stroke:#444
+    style T4 fill:#242424,color:#e8e8e8,stroke:#444
+    style T5 fill:#242424,color:#e8e8e8,stroke:#444
+    </pre>
+  </div>
+
+  <h3 id="tool-after">3.2 AI 中枢架构（After）</h3>
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart TD
+    subgraph TOOLS ["现有工具层"]
+        T1["📝 语雀<br>PRD 文档"]
+        T2["💬 钉钉<br>消息/会议"]
+        T3["🎨 Figma<br>设计稿"]
+        T4["🐛 Aone<br>Bug 管理"]
+        T5["📊 WA<br>数据报表"]
+    end
+
+    subgraph AI_HUB ["🤖 AI 中枢 (知识库 + 自动化)"]
+        HUB1["📚 项目知识库<br>所有文档/决策/变更的统一索引"]
+        HUB2["🔄 信息同步引擎<br>监听各工具变更 → 同步到知识库"]
+        HUB3["📊 进度聚合器<br>从各工具自动拉取状态"]
+        HUB4["🤖 智能助手<br>回答问题 / 生成报告 / 追踪变更"]
+    end
+
+    T1 <--> HUB2
+    T2 <--> HUB2
+    T3 <--> HUB2
+    T4 <--> HUB2
+    T5 <--> HUB2
+    HUB2 --> HUB1
+    HUB1 --> HUB3
+    HUB1 --> HUB4
+
+    PM["PM (你)"] --> |"自然语言对话"| HUB4
+    HUB3 --> |"⚡ 一键生成"| REPORT["📄 进度报告<br>⏱️ 耗时 3 分钟"]
+    HUB4 --> |"回答"| PM
+
+    style AI_HUB fill:#1a1a2e,stroke:#6c5ce7
+    style HUB1 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style HUB2 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style HUB3 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style HUB4 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style PM fill:#6c5ce7,color:#fff,stroke:none
+    style REPORT fill:#55efc433,stroke:#55efc4,color:#e8e8e8
+    </pre>
+  </div>
+
+  <h4>五大工具的 AI 集成方案</h4>
+  <table>
+    <tr><th>工具</th><th>AI 集成点</th><th>实现方式</th><th>优先级</th></tr>
+    <tr>
+      <td>语雀</td>
+      <td>PRD 辅助撰写、需求模板自动填充、版本 diff</td>
+      <td>Claude/ChatGPT 生成 → 粘贴到语雀；或通过语雀 API 自动推送</td>
+      <td><span class="badge now">立即</span></td>
+    </tr>
+    <tr>
+      <td>钉钉</td>
+      <td>群消息摘要、会议纪要自动生成、需求变更提取</td>
+      <td>钉钉 AI 助理（已内置）；或自建钉钉机器人调用 AI API</td>
+      <td><span class="badge now">立即</span></td>
+    </tr>
+    <tr>
+      <td>Figma</td>
+      <td>设计走查清单自动生成、设计稿与 PRD 一致性检查</td>
+      <td>将设计稿截图输入 AI（多模态），对比 PRD 描述</td>
+      <td><span class="badge soon">短期</span></td>
+    </tr>
+    <tr>
+      <td>Aone</td>
+      <td>Bug 分类/优先级建议、Bug 报告自动摘要、阻塞预警</td>
+      <td>通过 Aone API 拉取数据 → AI 分析；或建立 Aone webhook</td>
+      <td><span class="badge soon">短期</span></td>
+    </tr>
+    <tr>
+      <td>WA</td>
+      <td>报表解读、异常指标预警、上线效果自动分析</td>
+      <td>导出报表数据 → AI 分析生成结论；或对接 WA API</td>
+      <td><span class="badge later">中期</span></td>
+    </tr>
+  </table>
+
+  <!-- DASHBOARD -->
+  <h3 id="dashboard">3.3 进度看板自动生成方案</h3>
+
+  <blockquote>
+    核心目标：上级随时问进度，PM 3 分钟内输出一份完整的项目状态报告。
+  </blockquote>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart LR
+    subgraph 数据源
+        D1["语雀<br>PRD 状态"]
+        D2["Aone<br>Bug 数/解决率"]
+        D3["钉钉<br>会议决策/待办"]
+        D4["研发<br>开发进度"]
+    end
+
+    subgraph AI_DASH ["🤖 AI 进度聚合"]
+        A1["定时拉取各平台数据"]
+        A2["结构化整理"]
+        A3["生成进度报告"]
+    end
+
+    D1 --> A1
+    D2 --> A1
+    D3 --> A1
+    D4 --> A1
+    A1 --> A2
+    A2 --> A3
+
+    A3 --> O1["📄 周报/日报<br>自动生成"]
+    A3 --> O2["🚨 风险预警<br>延期/阻塞提醒"]
+    A3 --> O3["💬 钉钉推送<br>@上级 一键发送"]
+
+    style A1 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style A2 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style A3 fill:#6c5ce733,stroke:#6c5ce7,color:#e8e8e8
+    style AI_DASH fill:#1a1a2e,stroke:#6c5ce7
+    </pre>
+  </div>
+
+  <h4>自动生成的进度报告模板</h4>
+  <div class="card" style="max-width:600px;font-size:13px;">
+    <h4 style="margin-top:0;">📊 优惠券功能 · 项目进度（2026-03-28）</h4>
+    <table style="margin:8px 0;font-size:12px;">
+      <tr><th style="width:100px;">维度</th><th>状态</th></tr>
+      <tr><td>整体进度</td><td><span style="color:var(--accent5);">■■■■■■□□□□</span> 65%</td></tr>
+      <tr><td>PRD 状态</td><td>✅ 已定稿（v2.1），最近变更: 3月26日</td></tr>
+      <tr><td>设计状态</td><td>✅ 视觉稿已交付，研发已确认</td></tr>
+      <tr><td>研发进度</td><td>🔄 后端 80%，前端 50%，预计 4月2日提测</td></tr>
+      <tr><td>Bug 情况</td><td>提测前 —</td></tr>
+      <tr><td>风险项</td><td><span style="color:var(--orange);">⚠️ 折扣券需求变更（3/28），预计影响排期 2 天</span></td></tr>
+      <tr><td>关键决策</td><td>3/27 会议决定：优惠券叠加规则延后到 V2</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 4: AI TOOL SELECTION -->
+<!-- ============================================================ -->
+<section id="ai-tools">
+  <h2>四、AI 工具选型推荐</h2>
+
+  <p>采用<strong>"AI 主力 + 平台内置 AI + 轻量自动化"</strong>的混合方案，平衡效果与落地成本。</p>
+
+  <h3>4.1 核心 AI 工具</h3>
+  <div class="tool-grid">
+    <div class="tool-card">
+      <div class="tool-icon" style="background:#6c5ce733;">🧠</div>
+      <div>
+        <h4>Claude（主力 AI 助手）</h4>
+        <p>最强的长文理解和写作能力，适合 PRD 撰写、需求分析、进度报告生成</p>
+        <div class="scene">场景：需求分析 → PRD 撰写 → 变更 Diff → 进度报告</div>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon" style="background:#00cec933;">🤖</div>
+      <div>
+        <h4>钉钉 AI 助理（内置能力）</h4>
+        <p>钉钉生态内的 AI，无需额外部署，擅长群消息摘要、会议纪要</p>
+        <div class="scene">场景：群消息摘要 → 会议纪要 → @机器人 快速查询</div>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon" style="background:#fd79a833;">⚡</div>
+      <div>
+        <h4>Coze / 扣子（自动化编排）</h4>
+        <p>字节跳动的 AI 应用平台，可编排多步骤 AI 工作流，连接多个工具</p>
+        <div class="scene">场景：构建"需求变更自动通知""进度自动汇总"等自动化流</div>
+      </div>
+    </div>
+    <div class="tool-card">
+      <div class="tool-icon" style="background:#fdcb6e33;">🔗</div>
+      <div>
+        <h4>钉钉连接器 / Webhook</h4>
+        <p>低代码方式将钉钉消息、审批、日程与外部系统打通</p>
+        <div class="scene">场景：Aone 状态变更 → 钉钉通知；钉钉审批 → 语雀文档状态</div>
+      </div>
+    </div>
+  </div>
+
+  <h3>4.2 各场景工具映射</h3>
+  <table>
+    <tr><th>工作场景</th><th>主用工具</th><th>AI 如何参与</th><th>落地难度</th></tr>
+    <tr>
+      <td>接收一句话需求</td>
+      <td>Claude</td>
+      <td>输入需求原文 → AI 生成追问清单 + 需求卡</td>
+      <td>低（直接对话）</td>
+    </tr>
+    <tr>
+      <td>撰写 PRD</td>
+      <td>Claude → 语雀</td>
+      <td>AI 生成 PRD 初稿 → PM 审核修改 → 粘贴到语雀</td>
+      <td>低</td>
+    </tr>
+    <tr>
+      <td>群聊消息摘要</td>
+      <td>钉钉 AI 助理</td>
+      <td>@AI助理 "总结今天的讨论"，自动生成结构化摘要</td>
+      <td>低（已内置）</td>
+    </tr>
+    <tr>
+      <td>会议纪要</td>
+      <td>钉钉 AI 助理</td>
+      <td>视频会议自动生成纪要，提取待办事项</td>
+      <td>低（已内置）</td>
+    </tr>
+    <tr>
+      <td>需求变更追踪</td>
+      <td>Claude + 语雀版本</td>
+      <td>将变更前后文本输入 Claude，生成结构化 Diff</td>
+      <td>低</td>
+    </tr>
+    <tr>
+      <td>进度汇报</td>
+      <td>Claude</td>
+      <td>将各平台最新状态粘贴给 AI，生成进度报告</td>
+      <td>低</td>
+    </tr>
+    <tr>
+      <td>Bug 分析</td>
+      <td>Claude + Aone 导出</td>
+      <td>导出 Bug 列表 → AI 分类/优先级排序/风险分析</td>
+      <td>中</td>
+    </tr>
+    <tr>
+      <td>上线数据分析</td>
+      <td>Claude + WA 导出</td>
+      <td>导出报表截图/数据 → AI 生成分析报告</td>
+      <td>中</td>
+    </tr>
+    <tr>
+      <td>跨工具自动化</td>
+      <td>Coze + 钉钉连接器</td>
+      <td>搭建自动化流：Aone变更→钉钉通知→语雀更新</td>
+      <td>高（需开发）</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 5: ROADMAP -->
+<!-- ============================================================ -->
+<section id="roadmap">
+  <h2>五、落地路线图</h2>
+
+  <div class="roadmap">
+    <div class="roadmap-item active">
+      <h4><span class="badge now">Phase 1</span> 立即可做（1–2 周）</h4>
+      <div class="time">零成本 / 零开发，用现有工具 + AI 对话即可启动</div>
+      <ul>
+        <li><strong>Claude 作为 PRD 写作副驾</strong> — 建立你的专属 prompt 模板，包含需求分析、追问清单、PRD 框架生成三个场景</li>
+        <li><strong>钉钉 AI 助理启用</strong> — 在项目群中开启 AI 助理，让它自动总结群消息和会议纪要</li>
+        <li><strong>需求变更 Diff</strong> — 每次变更时，将前后版本粘贴给 Claude 生成对比报告</li>
+        <li><strong>进度报告半自动</strong> — 每周手动收集各平台状态 → 输入 Claude → 生成格式化报告</li>
+        <li><strong>建立 Prompt 库</strong> — 将常用 prompt 存为语雀文档/本地文件，团队共享</li>
+      </ul>
+    </div>
+
+    <div class="roadmap-item">
+      <h4><span class="badge soon">Phase 2</span> 短期建设（1–2 月）</h4>
+      <div class="time">需要少量配置和学习，但无需写代码</div>
+      <ul>
+        <li><strong>Claude 项目知识库</strong> — 利用 Claude Projects 功能，将 PRD、会议纪要、技术方案等上传为项目上下文，AI 回答基于全局信息</li>
+        <li><strong>Coze 搭建自动化 Bot</strong> — 构建"需求接收 Bot"：输入一句话需求 → 自动追问 → 输出需求卡 → 推送钉钉</li>
+        <li><strong>设计走查 AI 化</strong> — Figma 截图 → Claude 多模态分析 → 对比 PRD 中的交互描述 → 输出走查清单</li>
+        <li><strong>钉钉机器人增强</strong> — 配置钉钉 Webhook，将关键事件（Bug 状态变更、排期变更）自动推送到项目群</li>
+        <li><strong>标准化 SOP</strong> — 将 Phase 1 的实践沉淀为团队 SOP 文档</li>
+      </ul>
+    </div>
+
+    <div class="roadmap-item">
+      <h4><span class="badge later">Phase 3</span> 长期演进（3–6 月）</h4>
+      <div class="time">需要一定开发投入，实现全链路自动化</div>
+      <ul>
+        <li><strong>AI 中枢知识库</strong> — 搭建统一的项目知识库，自动索引语雀/钉钉/Aone 的信息，支持自然语言查询</li>
+        <li><strong>进度报告全自动</strong> — 通过 API 对接各平台，定时自动生成并推送进度报告</li>
+        <li><strong>需求变更自动追踪</strong> — 监听钉钉群消息中的需求变更关键词，自动创建变更记录卡</li>
+        <li><strong>WA 报表智能解读</strong> — 产品上线后，自动拉取数据 → AI 分析 → 输出上线效果报告</li>
+        <li><strong>团队 AI 工作流推广</strong> — 将方案推广到研发/设计/测试角色</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>投入产出预估</h3>
+  <table>
+    <tr><th>阶段</th><th>投入</th><th>节省时间（预估/周）</th><th>核心收益</th></tr>
+    <tr>
+      <td><span class="badge now">Phase 1</span></td>
+      <td>Claude 订阅费 ~$20/月<br>学习成本 1–2 天</td>
+      <td>3–5 小时/周</td>
+      <td>PRD 撰写提速 60%，进度汇报从 2h → 15min</td>
+    </tr>
+    <tr>
+      <td><span class="badge soon">Phase 2</span></td>
+      <td>Coze 免费/低成本<br>配置时间 3–5 天</td>
+      <td>5–8 小时/周</td>
+      <td>需求接收标准化，设计走查 AI 化，信息自动同步</td>
+    </tr>
+    <tr>
+      <td><span class="badge later">Phase 3</span></td>
+      <td>需开发资源 1–2 人周<br>API 对接和自动化</td>
+      <td>8–12 小时/周</td>
+      <td>全链路自动化，PM 从"信息搬运工"变为"决策者"</td>
+    </tr>
+  </table>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 6: SOPs -->
+<!-- ============================================================ -->
+<section id="sops">
+  <h2>六、具体 SOP</h2>
+
+  <!-- SOP 1: 需求接收 -->
+  <h3 id="sop-receive">6.1 需求接收 SOP</h3>
+  <p>适用场景：上级通过钉钉/口头传达新需求时。</p>
+
+  <div class="sop">
+    <div class="sop-step">
+      <h4>原始记录 <span class="ai-tag">钉钉 AI</span></h4>
+      <p>无论口头还是文字，立刻要求上级在钉钉群发送文字版（哪怕一句话）。钉钉 AI 助理自动记录上下文。</p>
+    </div>
+    <div class="sop-step">
+      <h4>AI 解析 & 追问 <span class="ai-tag">Claude</span></h4>
+      <p>将需求原文输入 Claude（使用"需求解析"prompt）。AI 输出：需求解析 + 追问清单（6 个维度：目标/用户/范围/时间/约束/验收）。</p>
+    </div>
+    <div class="sop-step">
+      <h4>向上追问</h4>
+      <p>带着 AI 生成的追问清单，向 +1 逐条确认。优先确认 P0 级问题（业务目标、时间约束）。将回答补充到 Claude 对话中。</p>
+    </div>
+    <div class="sop-step">
+      <h4>生成需求卡 <span class="ai-tag">Claude</span></h4>
+      <p>AI 基于追问结果，生成标准化"需求卡"。PM 审核确认后，作为 PRD 撰写的输入。</p>
+    </div>
+    <div class="sop-step">
+      <h4>存档 & 通知</h4>
+      <p>需求卡发到钉钉项目群，@相关人周知。同时在语雀创建 PRD 页面（状态：待撰写）。</p>
+    </div>
+  </div>
+
+  <h4>需求解析 Prompt 模板</h4>
+  <div class="card" style="font-size:12px;font-family:monospace;white-space:pre-wrap;color:var(--accent2);max-width:650px;line-height:1.6;">你是一个资深产品经理助理。我收到了一条来自上级的需求，请帮我做以下分析：
+
+1. **需求解析**：提取关键实体（用户角色、功能目标、业务场景）
+2. **追问清单**：对照以下 6 个维度，列出所有需要向上级确认的问题：
+   - 🎯 业务目标（为什么做？期望指标？）
+   - 👤 目标用户（面向谁？）
+   - 📦 功能范围（做什么？不做什么？）
+   - ⏰ 时间约束（什么时候要？可否分期？）
+   - 🚫 边界约束（预算？合规？技术限制？）
+   - ✅ 验收标准（什么算做完了？）
+3. **风险提示**：基于你的理解，指出可能的风险和坑
+
+上级的原始需求如下：
+"""
+[粘贴需求原文]
+"""</div>
+
+  <!-- SOP 2: PRD 撰写 -->
+  <h3 id="sop-prd">6.2 PRD 撰写 SOP</h3>
+  <p>适用场景：需求卡已确认，开始撰写正式 PRD。</p>
+
+  <div class="sop">
+    <div class="sop-step">
+      <h4>输入需求卡 <span class="ai-tag">Claude</span></h4>
+      <p>将确认后的需求卡 + 相关背景信息（竞品参考、历史迭代）输入 Claude 项目知识库。使用"PRD 生成"prompt。</p>
+    </div>
+    <div class="sop-step">
+      <h4>AI 生成 PRD 初稿 <span class="ai-tag">Claude</span></h4>
+      <p>AI 输出包含以下章节的完整 PRD 初稿：背景目标、用户故事、功能清单、信息架构、核心流程图、交互说明、边界条件、验收标准。</p>
+    </div>
+    <div class="sop-step">
+      <h4>PM 精修</h4>
+      <p>PM 逐章审核：<strong>补充业务判断</strong>（AI 无法替代的决策）、<strong>修正细节</strong>（边界场景、异常流程）、<strong>添加产品决策理由</strong>。</p>
+    </div>
+    <div class="sop-step">
+      <h4>发布到语雀</h4>
+      <p>将定稿内容粘贴到语雀 PRD 页面。标注版本号（v1.0）。@相关人在钉钉群通知。</p>
+    </div>
+    <div class="sop-step">
+      <h4>生成角色摘要 <span class="ai-tag">Claude</span></h4>
+      <p>让 AI 基于 PRD 全文，分别生成研发视角摘要（重点：接口设计/数据模型）和设计视角摘要（重点：页面列表/交互流程），推送给对应角色。</p>
+    </div>
+  </div>
+
+  <!-- SOP 3: 进度汇报 -->
+  <h3 id="sop-progress">6.3 进度汇报 SOP</h3>
+  <p>适用场景：上级临时要进度、周报输出、项目例会准备。</p>
+
+  <div class="sop">
+    <div class="sop-step">
+      <h4>信息收集（3 分钟）</h4>
+      <p>快速浏览 4 个来源：<br>
+        ① 语雀 PRD → 当前版本状态<br>
+        ② 研发同步 → 开发进度百分比<br>
+        ③ Aone → Bug 数量和解决率<br>
+        ④ 钉钉群 → 最近的关键决策和待办</p>
+    </div>
+    <div class="sop-step">
+      <h4>AI 生成报告 <span class="ai-tag">Claude</span></h4>
+      <p>将收集到的原始信息粘贴给 Claude，使用"进度报告"prompt。AI 输出格式化的项目进度报告。</p>
+    </div>
+    <div class="sop-step">
+      <h4>PM 审核 & 补充风险判断</h4>
+      <p>检查 AI 报告准确性，补充你的主观判断（风险、建议、需要上级决策的事项）。</p>
+    </div>
+    <div class="sop-step">
+      <h4>发送</h4>
+      <p>通过钉钉发送给上级。同时存档到语雀项目空间。</p>
+    </div>
+  </div>
+
+  <h4>进度报告 Prompt 模板</h4>
+  <div class="card" style="font-size:12px;font-family:monospace;white-space:pre-wrap;color:var(--accent2);max-width:650px;line-height:1.6;">请根据以下各平台的原始信息，生成一份结构化的项目进度报告。
+
+输出格式要求：
+- 整体进度（进度条 + 百分比）
+- 各模块状态（PRD/设计/研发/测试/上线）
+- 本周完成事项
+- 下周计划
+- 风险项与阻塞项（标红）
+- 关键决策记录
+- 需上级决策/支持的事项
+
+各平台原始信息：
+"""
+[粘贴语雀 PRD 状态]
+[粘贴研发进度]
+[粘贴 Aone Bug 数据]
+[粘贴钉钉关键讨论]
+"""</div>
+
+  <!-- SOP 4: 需求变更 -->
+  <h3 id="sop-change">6.4 需求变更处理 SOP</h3>
+  <p>适用场景：上级/业务方提出需求变更。</p>
+
+  <div class="sop">
+    <div class="sop-step">
+      <h4>变更记录</h4>
+      <p>要求变更方在钉钉群中明确描述变更内容（文字）。如果是口头，PM 当场文字确认。</p>
+    </div>
+    <div class="sop-step">
+      <h4>AI 生成变更 Diff <span class="ai-tag">Claude</span></h4>
+      <p>将 PRD 原文 + 变更描述输入 Claude。AI 输出：<br>
+        ① 变更前 vs 变更后对比<br>
+        ② 受影响的模块/页面<br>
+        ③ 对研发/设计/测试的影响评估</p>
+    </div>
+    <div class="sop-step">
+      <h4>影响评估</h4>
+      <p>PM 携带 AI 的 Diff 报告，与研发 leader 确认排期影响。量化：增加多少工作量、是否影响上线时间。</p>
+    </div>
+    <div class="sop-step">
+      <h4>决策确认</h4>
+      <p>将影响评估反馈给 +1，由上级决策：① 接受变更（排期顺延）② 变更降级到下个版本 ③ 用其他方案替代。</p>
+    </div>
+    <div class="sop-step">
+      <h4>更新 & 通知 <span class="ai-tag">Claude</span></h4>
+      <p>更新语雀 PRD（标注变更版本号 v1.0 → v1.1）。AI 生成变更通知，推送到钉钉项目群 @所有相关人。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================ -->
+<!-- SECTION 7: BEFORE/AFTER SUMMARY -->
+<!-- ============================================================ -->
+<section id="summary">
+  <h2>七、前后对比总结</h2>
+
+  <table>
+    <tr><th>维度</th><th>Before（现在）</th><th>After（AI 赋能后）</th></tr>
+    <tr>
+      <td><strong>需求接收</strong></td>
+      <td>凭记忆理解，信息遗漏率高</td>
+      <td>AI 结构化解析 + 追问补全，遗漏率 → 趋近 0</td>
+    </tr>
+    <tr>
+      <td><strong>PRD 撰写</strong></td>
+      <td>从空白开始写，耗时 4-8 小时</td>
+      <td>AI 生成初稿 → PM 精修，耗时 1-2 小时</td>
+    </tr>
+    <tr>
+      <td><strong>需求变更</strong></td>
+      <td>口头/群聊传达，容易遗漏</td>
+      <td>AI 自动生成 Diff + 影响分析 + 全员通知</td>
+    </tr>
+    <tr>
+      <td><strong>进度汇报</strong></td>
+      <td>手动汇总 5 个平台，耗时 1-2 小时</td>
+      <td>AI 聚合生成，耗时 3-15 分钟</td>
+    </tr>
+    <tr>
+      <td><strong>会议纪要</strong></td>
+      <td>手动记录，容易遗漏</td>
+      <td>钉钉 AI 自动生成，含待办提取</td>
+    </tr>
+    <tr>
+      <td><strong>工具协同</strong></td>
+      <td>5 个工具独立运作，靠 PM 人肉串联</td>
+      <td>AI 中枢统一索引，信息自动流转</td>
+    </tr>
+    <tr>
+      <td><strong>PM 角色</strong></td>
+      <td>信息搬运工 + 文档机器</td>
+      <td><strong>产品决策者 + AI 审核者</strong></td>
+    </tr>
+  </table>
+
+  <div class="mermaid-wrap">
+    <pre class="mermaid">
+flowchart LR
+    subgraph BEFORE ["❌ Before: PM 是信息枢纽"]
+        B1["接收需求"] --> B2["理解需求"]
+        B2 --> B3["撰写 PRD"]
+        B3 --> B4["沟通对齐"]
+        B4 --> B5["跟进进度"]
+        B5 --> B6["汇报"]
+        B6 --> B7["处理变更"]
+        B7 --> B2
+    end
+
+    subgraph AFTER ["✅ After: AI 是信息枢纽，PM 是决策者"]
+        A1["接收需求"] --> |"🤖 AI 结构化"| A2["审核需求卡"]
+        A2 --> |"🤖 AI 生成"| A3["精修 PRD"]
+        A3 --> |"🤖 AI 推送"| A4["确认对齐"]
+        A4 --> |"🤖 AI 聚合"| A5["审核进度"]
+        A5 --> |"🤖 AI 生成"| A6["发送报告"]
+        A6 --> |"🤖 AI Diff"| A7["决策变更"]
+        A7 --> A2
+    end
+
+    style BEFORE fill:#1a1010,stroke:#e17055
+    style AFTER fill:#101a1a,stroke:#55efc4
+    </pre>
+  </div>
+
+  <blockquote>
+    <strong>核心转变</strong>：PM 从"什么都要自己做"转变为"AI 做初稿，PM 做决策"。<br>
+    你的时间从 70% 花在信息搬运 → 70% 花在产品思考和业务判断。
+  </blockquote>
+</section>
+
+<!-- FOOTER -->
+<section style="text-align:center;padding:40px 0;border-top:1px solid var(--border);margin-top:40px;">
+  <div style="font-size:20px;font-weight:700;margin-bottom:6px;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;">AI + PM</div>
+  <p style="font-size:12px;color:var(--text3);">
+    让 AI 成为你的第二大脑<br>
+    v1.0 · 2026-03-28
+  </p>
+</section>
+
+</main>
+
+<script>
+mermaid.initialize({
+  startOnLoad: true,
+  theme: 'dark',
+  themeVariables: {
+    darkMode: true,
+    background: '#1a1a1a',
+    primaryColor: '#6c5ce7',
+    primaryTextColor: '#e8e8e8',
+    primaryBorderColor: '#444',
+    lineColor: '#666',
+    secondaryColor: '#00cec9',
+    tertiaryColor: '#242424',
+    fontSize: '12px',
+    fontFamily: '-apple-system, sans-serif'
+  },
+  flowchart: { curve: 'basis', padding: 16 }
+});
+</script>
+
+</body>
+</html>
